@@ -381,7 +381,7 @@ export function ContributionsPage() {
                   </div>
                   
                   {/* Action Button */}
-                  <button className="w-full bg-teal-500 text-white py-2 px-4 rounded-lg hover:bg-teal-600 transition inline-flex items-center justify-center gap-2">
+                  <button className="w-full brand-btn py-2 px-4 rounded-lg transition inline-flex items-center justify-center gap-2">
                     View Case Study
                     <ExternalLink size={16} />
                   </button>

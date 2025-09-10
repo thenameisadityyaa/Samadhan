@@ -5,22 +5,48 @@ const reportsStore = [];
 
 // Function to CREATE a new issue
 const createIssue = async (req, res) => {
-  console.log('Received data to create issue:', req.body);
+  try {
+    console.log('Received data to create issue:', req.body);
 
-  const newReport = {
-    _id: Date.now().toString(), // Create a fake ID
-    issueType: req.body.issueType,
-    description: req.body.description,
-    status: 'New',
-    submittedAt: new Date().toISOString(),
-  };
+    const {
+      issueType,
+      description,
+      location,
+      coordinates,
+      urgency,
+      contactInfo,
+      photosCount,
+      userEmail,
+    } = req.body || {};
 
-  reportsStore.push(newReport); // "Save" to our temporary array
+    if (!issueType || !description) {
+      return res.status(400).json({ message: 'issueType and description are required' });
+    }
 
-  res.status(201).json({
-    message: 'Report received (mocked)!',
-    data: newReport,
-  });
+    const newReport = {
+      _id: Date.now().toString(), // Create a fake ID
+      issueType,
+      description,
+      location: location || null,
+      coordinates: coordinates || null,
+      urgency: urgency || 'medium',
+      contactInfo: contactInfo || null,
+      photosCount: typeof photosCount === 'number' ? photosCount : 0,
+      userEmail: userEmail || (contactInfo && contactInfo.email) || null,
+      status: 'New',
+      submittedAt: new Date().toISOString(),
+    };
+
+    reportsStore.push(newReport); // "Save" to our temporary array
+
+    res.status(201).json({
+      message: 'Report received (mocked)!',
+      data: newReport,
+    });
+  } catch (err) {
+    console.error('Error creating issue:', err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
 };
 
 // Function to GET all issues

@@ -3,6 +3,32 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Brand palette from ColorHunt: #BBDCE5, #ECEEDF, #D9C4B0, #CFAB8D */
+:root {
+  --brand-primary: #CFAB8D; /* primary accent */
+  --brand-primary-600: #b8926f; /* hover */
+  --brand-accent: #BBDCE5; /* secondary accent */
+  --brand-bg: #ECEEDF; /* page background */
+  --brand-neutral: #D9C4B0; /* neutral highlights */
+}
+
+/* Simple utility classes to use brand colors */
+.brand-btn {
+  background-color: var(--brand-primary);
+  color: #ffffff;
+}
+.brand-btn:hover {
+  background-color: var(--brand-primary-600);
+}
+.brand-outline {
+  color: var(--brand-primary);
+  border-color: var(--brand-primary);
+}
+.brand-accent { color: var(--brand-primary); }
+.bg-brand-accent { background-color: var(--brand-accent); }
+.bg-brand-page { background-color: var(--brand-bg); }
+.border-brand { border-color: var(--brand-primary); }
+
 body {
   @apply bg-white font-sans text-slate-800;
 }

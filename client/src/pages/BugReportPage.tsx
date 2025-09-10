@@ -440,7 +440,7 @@ export function BugReportPage() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="bg-teal-500 text-white px-8 py-3 rounded-lg hover:bg-teal-600 disabled:opacity-50 disabled:cursor-not-allowed transition inline-flex items-center gap-2"
+                className="brand-btn text-white px-8 py-3 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition inline-flex items-center gap-2"
               >
                 {isSubmitting ? (
                   <>

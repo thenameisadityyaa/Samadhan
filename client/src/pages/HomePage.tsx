@@ -4,7 +4,6 @@ import {
   Camera, 
   Users, 
   TrendingUp, 
-  MapPin, 
   CheckCircle, 
   Star, 
   ChevronDown,
@@ -20,6 +19,7 @@ import { useState } from 'react';
 
 export function HomePage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  
 
   const toggleFaq = (index: number) => {
     setOpenFaq(openFaq === index ? null : index);
@@ -33,9 +33,9 @@ export function HomePage() {
           <p className="text-sm font-medium">
             Complete your profile to get the most out of Samaadhan. Add your name, email, and location to start reporting issues.
           </p>
-          <button className="bg-slate-900 text-white px-4 py-1 rounded text-sm font-medium hover:bg-slate-800 transition">
+          <Link to="/profile" className="bg-slate-900 text-white px-4 py-1 rounded text-sm font-medium hover:bg-slate-800 transition">
             Complete Profile
-          </button>
+          </Link>
         </div>
       </div>
 
@@ -47,18 +47,18 @@ export function HomePage() {
               <h1 className="text-5xl md:text-6xl font-extrabold text-slate-900 mb-6 leading-tight">
                 Report Local Issues.<br />
                 <span className="text-teal-500">Make Your City Better.</span>
-              </h1>
+        </h1>
               <p className="text-lg text-slate-600 mb-8 leading-relaxed">
                 Samaadhan helps citizens report, and track local civic issues like potholes, broken lights, and garbage collection problems. Join thousands making their communities better.
-              </p>
+        </p>
               <div className="flex flex-col sm:flex-row gap-4 mb-8">
-                <Link
+          <Link
                   to="/report"
-                  className="bg-teal-500 hover:bg-teal-600 text-white font-bold text-lg py-3 px-8 rounded-md transition inline-flex items-center justify-center"
-                >
+                  className="brand-btn text-white font-bold text-lg py-3 px-8 rounded-md transition inline-flex items-center justify-center"
+          >
                   Get Started
-                </Link>
-                <button className="bg-white text-slate-700 font-bold text-lg py-3 px-8 rounded-md border-2 border-slate-300 hover:bg-slate-100 hover:border-slate-400 transition inline-flex items-center justify-center gap-2">
+          </Link>
+                <button className="bg-white text-slate-700 font-bold text-lg py-3 px-8 rounded-md border-2 border-brand hover:bg-slate-100 transition inline-flex items-center justify-center gap-2">
                   <Play size={20} />
                   Watch Demo
                 </button>
@@ -182,7 +182,7 @@ export function HomePage() {
       {/* ===== How It Works Section ===== */}
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-8">
-          <div className="text-center mb-16">
+        <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-slate-900 mb-4">
               Simple process, <span className="text-teal-500">powerful results</span>
             </h2>
@@ -201,8 +201,8 @@ export function HomePage() {
               <p className="text-slate-600">
                 Take a photo, mark the location on the map, and add a detailed description of the problem you've encountered.
               </p>
-            </div>
-
+        </div>
+        
             {/* Step 2 */}
             <div className="text-center">
               <div className="w-16 h-16 bg-teal-500 text-white rounded-full flex items-center justify-center text-xl font-bold mx-auto mb-6">
@@ -220,7 +220,7 @@ export function HomePage() {
                 03
               </div>
               <h3 className="text-xl font-bold text-slate-900 mb-4">Track Resolution</h3>
-              <p className="text-slate-600">
+            <p className="text-slate-600">
                 Follow your report's progress with real-time updates and see the positive change in your community.
               </p>
             </div>
@@ -239,7 +239,7 @@ export function HomePage() {
               See what citizens and city workers are saying about Samaadhan and how it's transforming communities across the nation.
             </p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* Testimonial 1 */}
             <div className="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
@@ -339,7 +339,7 @@ export function HomePage() {
               Find answers to commonly asked questions about Samaadhan platform features and services.
             </p>
           </div>
-          
+
           <div className="space-y-4">
             {[
               {

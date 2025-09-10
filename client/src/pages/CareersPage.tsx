@@ -418,12 +418,12 @@ export function CareersPage() {
                     <div className="flex flex-col gap-2">
                       <button
                         onClick={() => setSelectedJob(selectedJob === job.id ? null : job.id)}
-                        className="bg-teal-500 text-white px-6 py-2 rounded-lg hover:bg-teal-600 transition inline-flex items-center gap-2"
+                        className="brand-btn px-6 py-2 rounded-lg transition inline-flex items-center gap-2"
                       >
                         {selectedJob === job.id ? 'Hide Details' : 'View Details'}
                         <ArrowRight size={16} />
                       </button>
-                      <button className="border border-teal-500 text-teal-500 px-6 py-2 rounded-lg hover:bg-teal-50 transition">
+                      <button className="border border-brand text-slate-700 px-6 py-2 rounded-lg hover:bg-brand-accent/40 transition">
                         Apply Now
                       </button>
                     </div>
@@ -608,7 +608,7 @@ export function CareersPage() {
               <div className="flex justify-end">
                 <button
                   type="submit"
-                  className="bg-teal-500 text-white px-8 py-3 rounded-lg hover:bg-teal-600 transition inline-flex items-center gap-2"
+                  className="brand-btn px-8 py-3 rounded-lg transition inline-flex items-center gap-2"
                 >
                   <Send size={16} />
                   Submit Application
