@@ -10,7 +10,32 @@ export function SubmitReportPage() {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (event: React.FormEvent) => {
-    // ... (handleSubmit logic remains the same)
+    event.preventDefault();
+    
+    if (!issueType || !description) {
+      alert('Please fill in all fields');
+      return;
+    }
+    
+    setIsLoading(true);
+    try {
+      const payload = {
+        title: issueType,
+        description: description,
+      };
+      
+      await axios.post('/api/reports', payload);
+      alert('Report submitted successfully!');
+      
+      // Reset form
+      setIssueType('');
+      setDescription('');
+    } catch (error) {
+      console.error('Error submitting report:', error);
+      alert('Failed to submit report. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

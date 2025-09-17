@@ -21,7 +21,7 @@ export function AboutPage() {
         <div className="max-w-7xl mx-auto px-8">
           <div className="text-center max-w-4xl mx-auto">
             <h1 className="text-5xl md:text-6xl font-extrabold text-slate-900 mb-6 leading-tight">
-              About <span className="text-teal-500">Samaadhan</span>
+              About <span className="text-teal-500">Samadhan</span>
             </h1>
             <p className="text-xl text-slate-600 mb-8 leading-relaxed">
               We're on a mission to bridge the gap between citizens and local government, creating stronger, more responsive communities through technology and civic engagement.
@@ -86,7 +86,7 @@ export function AboutPage() {
               Our <span className="text-teal-500">Values</span>
             </h2>
             <p className="text-lg text-slate-600 max-w-3xl mx-auto">
-              These core values guide everything we do at Samaadhan and shape how we serve our communities.
+              These core values guide everything we do at Samadhan and shape how we serve our communities.
             </p>
           </div>
           
@@ -148,13 +148,13 @@ export function AboutPage() {
               </h2>
               <div className="space-y-6 text-slate-600 leading-relaxed">
                 <p>
-                  Samaadhan was born from a simple observation: too many community issues go unreported or unresolved because the process is complicated, time-consuming, and lacks transparency.
+                  Samadhan was born from a simple observation: too many community issues go unreported or unresolved because the process is complicated, time-consuming, and lacks transparency.
                 </p>
                 <p>
                   Our founders, having experienced the frustration of reporting issues in their own neighborhoods, decided to create a solution that would make civic engagement as simple as posting on social media.
                 </p>
                 <p>
-                  Today, Samaadhan serves thousands of citizens across multiple cities, helping them report issues, track progress, and see real change in their communities. We're proud to be part of the civic tech movement that's transforming how citizens and governments interact.
+                  Today, Samadhan serves thousands of citizens across multiple cities, helping them report issues, track progress, and see real change in their communities. We're proud to be part of the civic tech movement that's transforming how citizens and governments interact.
                 </p>
               </div>
             </div>
@@ -219,9 +219,9 @@ export function AboutPage() {
             {/* Team Member 1 */}
             <div className="bg-white p-6 rounded-lg shadow-sm border border-slate-200 text-center">
               <div className="w-20 h-20 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-teal-600 font-bold text-xl">AS</span>
+                <span className="text-teal-600 font-bold text-xl">HK</span>
               </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-2">Arjun Sharma</h3>
+              <h3 className="text-xl font-bold text-slate-900 mb-2">Himanshu Kumar</h3>
               <p className="text-teal-600 font-medium mb-3">Founder & CEO</p>
               <p className="text-slate-600 text-sm">
                 Passionate about civic technology and community engagement. Former city planner with 10+ years of experience in urban development.
@@ -231,9 +231,9 @@ export function AboutPage() {
             {/* Team Member 2 */}
             <div className="bg-white p-6 rounded-lg shadow-sm border border-slate-200 text-center">
               <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-blue-600 font-bold text-xl">PK</span>
+                <span className="text-blue-600 font-bold text-xl">AS</span>
               </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-2">Priya Kumar</h3>
+              <h3 className="text-xl font-bold text-slate-900 mb-2">Aditya sharma</h3>
               <p className="text-teal-600 font-medium mb-3">CTO</p>
               <p className="text-slate-600 text-sm">
                 Full-stack developer and civic tech enthusiast. Leads our technical team in building scalable, user-friendly solutions.
@@ -243,9 +243,9 @@ export function AboutPage() {
             {/* Team Member 3 */}
             <div className="bg-white p-6 rounded-lg shadow-sm border border-slate-200 text-center">
               <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-green-600 font-bold text-xl">RS</span>
+                <span className="text-green-600 font-bold text-xl">AG</span>
               </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-2">Rahul Singh</h3>
+              <h3 className="text-xl font-bold text-slate-900 mb-2">Abhipsha giri</h3>
               <p className="text-teal-600 font-medium mb-3">Head of Community</p>
               <p className="text-slate-600 text-sm">
                 Community engagement specialist with a background in public policy. Ensures our platform serves citizens effectively.
@@ -263,7 +263,7 @@ export function AboutPage() {
               What People Say <span className="text-teal-500">About Us</span>
             </h2>
             <p className="text-lg text-slate-600 max-w-3xl mx-auto">
-              Hear from citizens and city officials who have experienced the impact of Samaadhan firsthand.
+              Hear from citizens and city officials who have experienced the impact of Samadhan firsthand.
             </p>
           </div>
           
@@ -276,7 +276,7 @@ export function AboutPage() {
                 ))}
               </div>
               <p className="text-slate-600 mb-4 text-sm italic">
-                "Samaadhan has revolutionized how we handle citizen complaints. The transparency and efficiency have improved our response time by 60%."
+                "Samadhan has revolutionized how we handle citizen complaints. The transparency and efficiency have improved our response time by 60%."
               </p>
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-teal-100 rounded-full flex items-center justify-center">
@@ -318,7 +318,7 @@ export function AboutPage() {
                 ))}
               </div>
               <p className="text-slate-600 mb-4 text-sm italic">
-                "The team at Samaadhan truly understands the needs of both citizens and city workers. Their platform has made our job so much easier."
+                "The team at Samadhan truly understands the needs of both citizens and city workers. Their platform has made our job so much easier."
               </p>
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
@@ -341,7 +341,7 @@ export function AboutPage() {
             Ready to Make a Difference?
           </h2>
           <p className="text-xl text-teal-100 mb-8 leading-relaxed">
-            Join thousands of citizens who are already using Samaadhan to improve their communities. Your voice matters, and your actions create change.
+            Join thousands of citizens who are already using Samadhan to improve their communities. Your voice matters, and your actions create change.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button className="bg-white text-teal-500 font-bold text-lg py-3 px-8 rounded-md hover:bg-slate-100 transition inline-flex items-center justify-center gap-2">

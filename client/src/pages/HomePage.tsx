@@ -16,6 +16,7 @@ import {
   Heart
 } from 'lucide-react';
 import { useState } from 'react';
+import logo from '/public/logo.svg';
 
 export function HomePage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
@@ -31,7 +32,7 @@ export function HomePage() {
       <div className="bg-yellow-400 text-slate-900 py-2 px-4">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <p className="text-sm font-medium">
-            Complete your profile to get the most out of Samaadhan. Add your name, email, and location to start reporting issues.
+            Complete your profile to get the most out of Samadhan. Add your name, email, and location to start reporting issues.
           </p>
           <Link to="/profile" className="bg-slate-900 text-white px-4 py-1 rounded text-sm font-medium hover:bg-slate-800 transition">
             Complete Profile
@@ -49,7 +50,7 @@ export function HomePage() {
                 <span className="text-teal-500">Make Your City Better.</span>
         </h1>
               <p className="text-lg text-slate-600 mb-8 leading-relaxed">
-                Samaadhan helps citizens report, and track local civic issues like potholes, broken lights, and garbage collection problems. Join thousands making their communities better.
+                Samadhan helps citizens report, and track local civic issues like potholes, broken lights, and garbage collection problems. Join thousands making their communities better.
         </p>
               <div className="flex flex-col sm:flex-row gap-4 mb-8">
           <Link
@@ -76,8 +77,8 @@ export function HomePage() {
               <div className="bg-slate-100 rounded-lg p-4 border-2 border-slate-200">
                 <div className="bg-gradient-to-br from-slate-200 to-slate-300 rounded-lg h-80 flex items-center justify-center">
                   <div className="text-center">
-                    <div className="w-16 h-16 bg-teal-500 rounded-full mx-auto mb-4 flex items-center justify-center">
-                      <span className="text-white font-bold text-xl">VIX</span>
+                    <div className="w-16 h-16 bg-white-500 rounded-full mx-auto mb-4 flex items-center justify-center">
+                      <img src={logo} alt="Samadhan Logo" className="w-10 h-10 rounded-full" />
                     </div>
                     <p className="text-slate-600 font-medium">Live Demo</p>
                   </div>
@@ -96,7 +97,7 @@ export function HomePage() {
               Everything you need to <span className="text-teal-500">improve your community</span>
             </h2>
             <p className="text-lg text-slate-600 max-w-3xl mx-auto">
-              Samaadhan provides a comprehensive platform for citizens and city workers to collaborate on local issues and build stronger communities together.
+              Samadhan provides a comprehensive platform for citizens and city workers to collaborate on local issues and build stronger communities together.
             </p>
           </div>
           
@@ -187,7 +188,7 @@ export function HomePage() {
               Simple process, <span className="text-teal-500">powerful results</span>
             </h2>
             <p className="text-lg text-slate-600 max-w-3xl mx-auto">
-              Samaadhan makes it easy to report issues and track their resolution in just a few simple steps. Join thousands of citizens making their communities better.
+              Samadhan makes it easy to report issues and track their resolution in just a few simple steps. Join thousands of citizens making their communities better.
             </p>
           </div>
           
@@ -236,7 +237,7 @@ export function HomePage() {
               Trusted by <span className="text-teal-500">communities everywhere</span>
             </h2>
             <p className="text-lg text-slate-600 max-w-3xl mx-auto">
-              See what citizens and city workers are saying about Samaadhan and how it's transforming communities across the nation.
+              See what citizens and city workers are saying about Samadhan and how it's transforming communities across the nation.
             </p>
           </div>
 
@@ -270,7 +271,7 @@ export function HomePage() {
                 ))}
               </div>
               <p className="text-slate-600 mb-4 text-sm">
-                "As a City worker, Samaadhan has transformed how we manage local issues. The dashboard makes it easy to prioritize and track our work."
+                "As a City worker, Samadhan has transformed how we manage local issues. The dashboard makes it easy to prioritize and track our work."
               </p>
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
@@ -291,7 +292,7 @@ export function HomePage() {
                 ))}
               </div>
               <p className="text-slate-600 mb-4 text-sm">
-                "The transparency and speed of resolution through Samaadhan has restored my faith in local government. Highly recommend to every citizen."
+                "The transparency and speed of resolution through Samadhan has restored my faith in local government. Highly recommend to every citizen."
               </p>
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
@@ -312,7 +313,7 @@ export function HomePage() {
                 ))}
               </div>
               <p className="text-slate-600 mb-4 text-sm">
-                "Our community engagement has increased by 300% since implementing Samaadhan. Citizens feel heard and empowered to make real change."
+                "Our community engagement has increased by 300% since implementing Samadhan. Citizens feel heard and empowered to make real change."
               </p>
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
@@ -336,15 +337,15 @@ export function HomePage() {
               Frequently <span className="text-teal-500">Asked Questions</span>
             </h2>
             <p className="text-lg text-slate-600">
-              Find answers to commonly asked questions about Samaadhan platform features and services.
+              Find answers to commonly asked questions about Samadhan platform features and services.
             </p>
           </div>
 
           <div className="space-y-4">
             {[
               {
-                question: "What is Samaadhan?",
-                answer: "Samaadhan is a civic engagement platform that helps citizens report local issues like potholes, broken streetlights, and garbage collection problems. It connects citizens with city workers to improve communities together.",
+                question: "What is Samadhan?",
+                answer: "Samadhan is a civic engagement platform that helps citizens report local issues like potholes, broken streetlights, and garbage collection problems. It connects citizens with city workers to improve communities together.",
                 popular: true
               },
               {
@@ -352,8 +353,8 @@ export function HomePage() {
                 answer: "Simply take a photo of the issue, mark its location on the map, add a description, and submit. It takes less than 2 minutes to make a difference in your community."
               },
               {
-                question: "Is Samaadhan free to use?",
-                answer: "Yes, Samaadhan is completely free for citizens to use. There are no hidden fees or premium features. We believe civic engagement should be accessible to everyone.",
+                question: "Is Samadhan free to use?",
+                answer: "Yes, Samadhan is completely free for citizens to use. There are no hidden fees or premium features. We believe civic engagement should be accessible to everyone.",
                 popular: true
               },
               {
@@ -404,28 +405,34 @@ export function HomePage() {
                 Ready to improve your community?
               </h2>
               <p className="text-lg text-slate-600 mb-8">
-                Download the Samaadhan app today and start making a difference in your neighborhood.
+                Download the Samadhan app today and start making a difference in your neighborhood.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <button className="bg-teal-500 hover:bg-teal-600 text-white font-bold py-3 px-6 rounded-md transition inline-flex items-center justify-center">
+                <Link 
+                  to="/coming-soon"
+                  className="bg-teal-500 hover:bg-teal-600 text-white font-bold py-3 px-6 rounded-md transition inline-flex items-center justify-center"
+                >
                   Download for iOS
-                </button>
-                <button className="bg-teal-500 hover:bg-teal-600 text-white font-bold py-3 px-6 rounded-md transition inline-flex items-center justify-center">
+                </Link>
+                <Link 
+                  to="/coming-soon"
+                  className="bg-teal-500 hover:bg-teal-600 text-white font-bold py-3 px-6 rounded-md transition inline-flex items-center justify-center"
+                >
                   Download for Android
-                </button>
+                </Link>
               </div>
             </div>
             <div className="text-center">
               <div className="bg-white p-8 rounded-lg shadow-sm border border-slate-200 inline-block">
                 <div className="w-48 h-48 bg-slate-100 rounded-lg flex items-center justify-center mb-4">
                   <div className="text-center">
-                    <div className="w-16 h-16 bg-teal-500 rounded-lg mx-auto mb-2 flex items-center justify-center">
-                      <span className="text-white font-bold text-lg">VIX</span>
+                    <div className="w-16 h-16 rounded-lg mx-auto mb-2 flex items-center justify-center">
+                      <img src={logo} alt="Samadhan Logo" className="w-10 h-10 rounded-xl" />
                     </div>
                     <p className="text-slate-600 text-sm">QR Code</p>
                   </div>
                 </div>
-                <p className="font-semibold text-slate-900">Samaadhan App on Mobile</p>
+                <p className="font-semibold text-slate-900">Samadhan App on Mobile</p>
                 <p className="text-slate-600 text-sm">Scan to Download</p>
               </div>
             </div>
@@ -440,10 +447,8 @@ export function HomePage() {
             {/* Brand */}
             <div className="lg:col-span-2">
               <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 bg-teal-500 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">VIX</span>
-                </div>
-                <span className="text-xl font-bold">Samaadhan</span>
+                <img src={logo} alt="Samadhan Logo" className="w-8 h-8 rounded-xl" />
+                <span className="text-xl font-bold">Samadhan</span>
               </div>
               <p className="text-slate-300 mb-4">Civic Engagement Platform</p>
               <p className="text-slate-400 text-sm leading-relaxed">
@@ -469,13 +474,13 @@ export function HomePage() {
               <div className="space-y-2 text-sm text-slate-400">
                 <p>support@civix.com</p>
                 <p>+1 800 123-4567</p>
-                <p>Bangalore, India</p>
+                <p>Odisha, India</p>
               </div>
             </div>
 
             {/* Links */}
             <div>
-              <h3 className="font-semibold mb-4">Samaadhan</h3>
+              <h3 className="font-semibold mb-4">Samadhan</h3>
               <div className="space-y-2 text-sm">
                 <Link to="/about" className="text-slate-400 hover:text-white block">About Us</Link>
                 <Link to="/careers" className="text-slate-400 hover:text-white block">Careers</Link>
@@ -505,12 +510,12 @@ export function HomePage() {
           {/* Bottom */}
           <div className="border-t border-slate-700 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-slate-400 text-sm">
-              © 2023 Samaadhan. All rights reserved. • Made with <Heart className="inline text-red-500" size={14} /> for better civic engagement.
+              © 2025 Samadhan. All rights reserved. • Made with <Heart className="inline text-red-500" size={14} /> for better civic engagement.
             </p>
             <div className="flex gap-6 text-sm">
               <Link to="/terms" className="text-slate-400 hover:text-white">Terms</Link>
               <Link to="/accessibility" className="text-slate-400 hover:text-white">Accessibility</Link>
-              <span className="text-slate-400">Built by Kandil</span>
+              <span className="text-slate-400">Built by Aditya</span>
             </div>
           </div>
         </div>

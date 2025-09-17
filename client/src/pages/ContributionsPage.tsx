@@ -197,7 +197,7 @@ export function ContributionsPage() {
               Our <span className="text-yellow-300">Contributions</span>
             </h1>
             <p className="text-xl text-teal-100 mb-8 max-w-3xl mx-auto">
-              Discover how Samaadhan has transformed civic engagement across India, making cities smarter and communities stronger through technology and citizen participation.
+              Discover how Samadhan has transformed civic engagement across India, making cities smarter and communities stronger through technology and citizen participation.
             </p>
             <div className="flex justify-center">
               <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 max-w-2xl">
@@ -412,7 +412,7 @@ export function ContributionsPage() {
                 ))}
               </div>
               <p className="text-slate-600 mb-4 italic">
-                "Samaadhan has revolutionized how we handle citizen complaints. The transparency and efficiency have improved our response time by 60%."
+                "Samadhan has revolutionized how we handle citizen complaints. The transparency and efficiency have improved our response time by 60%."
               </p>
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-teal-100 rounded-full flex items-center justify-center">
@@ -452,7 +452,7 @@ export function ContributionsPage() {
                 ))}
               </div>
               <p className="text-slate-600 mb-4 italic">
-                "Samaadhan's smart parking solution has reduced traffic congestion in our city center by 40%. It's a game-changer for urban mobility."
+                "Samadhan's smart parking solution has reduced traffic congestion in our city center by 40%. It's a game-changer for urban mobility."
               </p>
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
@@ -475,7 +475,7 @@ export function ContributionsPage() {
             Ready to Make Your City Smarter?
           </h2>
           <p className="text-xl text-teal-100 mb-8">
-            Join the growing number of cities that are transforming civic engagement with Samaadhan.
+            Join the growing number of cities that are transforming civic engagement with Samadhan.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button className="bg-white text-teal-500 font-bold text-lg py-3 px-8 rounded-lg hover:bg-slate-100 transition inline-flex items-center justify-center gap-2">

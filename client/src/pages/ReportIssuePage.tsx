@@ -208,15 +208,19 @@ export function ReportIssuePage() {
   };
 
   const submit = async () => {
-    if (!isAuthenticated) {
-      alert('Please sign in first.');
-      return;
-    }
+    // For now, allow submission without authentication
+    // TODO: Implement proper authentication later
+    // if (!isAuthenticated) {
+    //   alert('Please sign in first.');
+    //   return;
+    // }
     setIsSubmitting(true);
     try {
       const payload = {
-        issueType: form.issueType,
+        title: form.issueType || 'Issue Report',
         description: form.description,
+        // Additional fields for future use
+        issueType: form.issueType,
         location: form.locationText,
         coordinates: form.coordinates,
         urgency: form.urgency,
@@ -224,7 +228,7 @@ export function ReportIssuePage() {
         photosCount: form.photos.length,
         userEmail: auth.email || form.contact.email,
       };
-      await axios.post('/api/v1/issues', payload);
+      await axios.post('/api/reports', payload);
       toast.success('Report submitted!');
       // reset
       setStep(1);

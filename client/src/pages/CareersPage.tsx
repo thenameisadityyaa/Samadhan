@@ -303,7 +303,7 @@ export function CareersPage() {
         <div className="max-w-7xl mx-auto px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-slate-900 mb-4">
-              Why Work at <span className="text-teal-500">Samaadhan</span>?
+              Why Work at <span className="text-teal-500">Samadhan</span>?
             </h2>
             <p className="text-lg text-slate-600 max-w-3xl mx-auto">
               We're not just building software – we're creating tools that empower citizens and transform how governments serve their communities.
@@ -587,7 +587,7 @@ export function CareersPage() {
                   value={applicationForm.coverLetter}
                   onChange={(e) => handleInputChange('coverLetter', e.target.value)}
                   rows={4}
-                  placeholder="Tell us why you want to work at Samaadhan..."
+                  placeholder="Tell us why you want to work at Samadhan..."
                   className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
                 />
               </div>
