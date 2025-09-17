@@ -61,7 +61,7 @@ export function ProfilePage() {
       <section className="bg-teal-500 text-white py-12">
         <div className="max-w-5xl mx-auto px-8">
           <h1 className="text-3xl md:text-4xl font-extrabold mb-2">Complete your profile</h1>
-          <p className="text-teal-100 max-w-2xl">Complete your profile to get the most out of Samaadhan. Add your name, email, and location to start reporting issues.</p>
+          <p className="text-teal-100 max-w-2xl">Complete your profile to get the most out of Samadhan. Add your name, email, and location to start reporting issues.</p>
         </div>
       </section>
 

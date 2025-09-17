@@ -31,7 +31,7 @@ export function HelpCenterPage() {
       <section className="bg-teal-500 text-white py-12">
         <div className="max-w-6xl mx-auto px-8">
           <h1 className="text-3xl md:text-4xl font-extrabold mb-2">Help Center</h1>
-          <p className="text-teal-100 max-w-2xl">Get answers, tips, and guidance for using Samaadhan.</p>
+          <p className="text-teal-100 max-w-2xl">Get answers, tips, and guidance for using Samadhan.</p>
         </div>
       </section>
 

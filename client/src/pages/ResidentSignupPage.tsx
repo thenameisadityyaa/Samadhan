@@ -33,7 +33,7 @@ export function ResidentSignupPage() {
         <div className="max-w-md mx-auto px-8">
           <div className="text-center mb-8">
             <h1 className="text-3xl font-extrabold text-slate-900">Create Resident Account</h1>
-            <p className="text-slate-600 mt-2">Join Samaadhan and start reporting issues</p>
+            <p className="text-slate-600 mt-2">Join Samadhan and start reporting issues</p>
           </div>
 
           <form onSubmit={onSubmit} className="bg-white border border-slate-200 rounded-lg shadow-sm p-6 space-y-5">

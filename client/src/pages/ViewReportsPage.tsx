@@ -4,10 +4,11 @@ import axios from 'axios';
 
 interface Report {
   _id: string;
-  issueType: string;
+  title: string;
   description: string;
   status: string;
-  submittedAt: string;
+  createdAt: string;
+  submittedBy?: string;
 }
 
 export function ViewReportsPage() {
@@ -20,7 +21,7 @@ export function ViewReportsPage() {
   useEffect(() => {
     const fetchReports = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/api/v1/issues');
+        const response = await axios.get('/api/reports');
         setReports(response.data.data); // Set the reports from the API response
       } catch (err) {
         setError('Failed to fetch reports. Please try again later.');
@@ -53,7 +54,7 @@ export function ViewReportsPage() {
             <div key={report._id} className="bg-slate-800 p-6 rounded-lg shadow-md">
               <div className="flex justify-between items-start">
                 <div>
-                  <h2 className="text-xl font-bold text-sky-400">{report.issueType}</h2>
+                  <h2 className="text-xl font-bold text-sky-400">{report.title}</h2>
                   <p className="text-slate-300 mt-2">{report.description}</p>
                 </div>
                 <span className="bg-sky-600 text-white text-xs font-semibold px-3 py-1 rounded-full">
@@ -61,7 +62,7 @@ export function ViewReportsPage() {
                 </span>
               </div>
               <div className="text-right text-xs text-slate-500 mt-4">
-                {new Date(report.submittedAt).toLocaleString()}
+                {new Date(report.createdAt).toLocaleString()}
               </div>
             </div>
           ))}
