@@ -16,13 +16,21 @@ async function protect(req, res, next) {
     }
 
     const decoded = jwt.verify(token, secret);
-    req.user = { id: decoded.sub };
+    req.user = { id: decoded.sub, role: decoded.role };
     return next();
   } catch (err) {
     return res.status(401).json({ success: false, message: 'Unauthorized: Invalid token' });
   }
 }
 
-module.exports = { protect };
+function adminProtect(req, res, next) {
+  if (req.user && req.user.role === 'admin') {
+    next();
+  } else {
+    res.status(403).json({ success: false, message: 'Forbidden: Admins only' });
+  }
+}
+
+module.exports = { protect, adminProtect };
 
 

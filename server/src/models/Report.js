@@ -18,10 +18,31 @@ const reportSchema = new mongoose.Schema(
       default: 'Submitted',
       required: true,
     },
+    location: {
+      type: String,
+      required: false,
+    },
+    coordinates: {
+      lat: { type: Number, required: false },
+      lng: { type: Number, required: false },
+    },
+    urgency: {
+      type: String,
+      enum: ['low', 'medium', 'high'],
+      default: 'medium',
+    },
+    category: {
+      type: String,
+      default: '',
+    },
+    images: {
+      type: [String],
+      default: []
+    },
     submittedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
-      required: false, // Allow anonymous reports for now
+      required: true,
     },
   },
   { timestamps: true }
