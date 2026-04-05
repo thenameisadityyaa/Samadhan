@@ -1,567 +1,217 @@
-// src/pages/AdminReportsManagementPage.tsx
+// src/pages/AdminReportsManagementPage.tsx — India Gov Design System v3
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { 
-  Search, 
-  Filter, 
-  Calendar, 
-  Download, 
-  Eye, 
-  Edit, 
-  MoreVertical,
-  ArrowUpDown,
-  ArrowUp,
-  ArrowDown,
-  LogOut,
-  ArrowLeft
-} from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
+import { Filter, Download, ArrowRight, Activity, Search, RefreshCw, LogOut, Loader2 } from 'lucide-react';
+import axios from 'axios';
 
-// Mock data - replace with actual API calls
-const mockReports = [
-  {
-    id: 'RPT-001',
-    issueType: 'Pothole',
-    location: 'Main Market Road, Sector 5',
-    dateSubmitted: new Date('2024-01-15T10:30:00'),
-    status: 'new',
-    assignedTo: 'Public Works Dept',
-    description: 'Large pothole causing traffic issues',
-    priority: 'high'
-  },
-  {
-    id: 'RPT-002',
-    issueType: 'Sanitation',
-    location: 'Gandhi Nagar, Block A',
-    dateSubmitted: new Date('2024-01-14T14:20:00'),
-    status: 'in_progress',
-    assignedTo: 'Sanitation Dept',
-    description: 'Garbage not being collected regularly',
-    priority: 'medium'
-  },
-  {
-    id: 'RPT-003',
-    issueType: 'Streetlight',
-    location: 'Park Street, Near Central Park',
-    dateSubmitted: new Date('2024-01-13T18:45:00'),
-    status: 'new',
-    assignedTo: 'Electrical Dept',
-    description: 'Streetlight has been out for 2 days',
-    priority: 'medium'
-  },
-  {
-    id: 'RPT-004',
-    issueType: 'Water',
-    location: 'Sector 12, Block B',
-    dateSubmitted: new Date('2024-01-12T09:15:00'),
-    status: 'resolved',
-    assignedTo: 'Water Dept',
-    description: 'Water pipe burst causing flooding',
-    priority: 'high'
-  },
-  {
-    id: 'RPT-005',
-    issueType: 'Infrastructure',
-    location: 'MG Road, Near Mall',
-    dateSubmitted: new Date('2024-01-11T16:30:00'),
-    status: 'rejected',
-    assignedTo: 'Public Works Dept',
-    description: 'Sidewalk tiles are broken and dangerous',
-    priority: 'low'
-  },
-  {
-    id: 'RPT-006',
-    issueType: 'Pothole',
-    location: 'Highway Road, Km 15',
-    dateSubmitted: new Date('2024-01-10T11:00:00'),
-    status: 'in_progress',
-    assignedTo: 'Highway Dept',
-    description: 'Multiple potholes on highway',
-    priority: 'high'
-  },
-  {
-    id: 'RPT-007',
-    issueType: 'Sanitation',
-    location: 'Market Area, Sector 8',
-    dateSubmitted: new Date('2024-01-09T13:45:00'),
-    status: 'new',
-    assignedTo: 'Sanitation Dept',
-    description: 'Sewage overflow in market area',
-    priority: 'high'
-  },
-  {
-    id: 'RPT-008',
-    issueType: 'Streetlight',
-    location: 'Residential Area, Block C',
-    dateSubmitted: new Date('2024-01-08T20:15:00'),
-    status: 'resolved',
-    assignedTo: 'Electrical Dept',
-    description: 'Streetlight not working in residential area',
-    priority: 'medium'
-  }
-];
-
-const getStatusColor = (status: string) => {
-  const colors: { [key: string]: string } = {
-    new: 'bg-blue-100 text-blue-800',
-    in_progress: 'bg-yellow-100 text-yellow-800',
-    resolved: 'bg-green-100 text-green-800',
-    rejected: 'bg-red-100 text-red-800'
-  };
-  return colors[status] || 'bg-gray-100 text-gray-800';
-};
-
-const getStatusLabel = (status: string) => {
-  const labels: { [key: string]: string } = {
-    new: 'New',
-    in_progress: 'In Progress',
-    resolved: 'Resolved',
-    rejected: 'Rejected'
-  };
-  return labels[status] || status;
-};
-
-const getPriorityColor = (priority: string) => {
-  const colors: { [key: string]: string } = {
-    high: 'text-red-600',
-    medium: 'text-yellow-600',
-    low: 'text-green-600'
-  };
-  return colors[priority] || 'text-gray-600';
-};
-
-const getPriorityLabel = (priority: string) => {
-  const labels: { [key: string]: string } = {
-    high: 'High',
-    medium: 'Medium',
-    low: 'Low'
-  };
-  return labels[priority] || priority;
-};
-
-const formatDate = (date: Date) => {
-  return date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
-};
-
-const FilterDropdown = ({ 
-  label, 
-  value, 
-  onChange, 
-  options, 
-  placeholder 
-}: {
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-  options: { value: string; label: string }[];
-  placeholder: string;
-}) => (
-  <div className="flex flex-col space-y-1">
-    <label className="text-sm font-medium text-slate-700">{label}</label>
-    <select
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      className="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-    >
-      <option value="">{placeholder}</option>
-      {options.map((option) => (
-        <option key={option.value} value={option.value}>
-          {option.label}
-        </option>
-      ))}
-    </select>
-  </div>
-);
-
-const SortableHeader = ({ 
-  label, 
-  sortKey, 
-  currentSort, 
-  onSort 
-}: {
-  label: string;
-  sortKey: string;
-  currentSort: { key: string; direction: 'asc' | 'desc' };
-  onSort: (key: string) => void;
-}) => {
-  const isActive = currentSort.key === sortKey;
-  const direction = isActive ? currentSort.direction : null;
-
-  return (
-    <th 
-      className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-50"
-      onClick={() => onSort(sortKey)}
-    >
-      <div className="flex items-center space-x-1">
-        <span>{label}</span>
-        <div className="flex flex-col">
-          {direction === 'asc' ? (
-            <ArrowUp className="h-3 w-3" />
-          ) : direction === 'desc' ? (
-            <ArrowDown className="h-3 w-3" />
-          ) : (
-            <ArrowUpDown className="h-3 w-3 text-slate-300" />
-          )}
-        </div>
-      </div>
-    </th>
-  );
+const formatTimeAgo = (date: Date) => {
+  const diffInMinutes = Math.floor((new Date().getTime() - date.getTime()) / (1000 * 60));
+  if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+  const hrs = Math.floor(diffInMinutes / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  return `${Math.floor(hrs / 24)}d ago`;
 };
 
 export function AdminReportsManagementPage() {
   const navigate = useNavigate();
-  const [reports] = useState(mockReports);
-  const [filteredReports, setFilteredReports] = useState(mockReports);
-  const [filters, setFilters] = useState({
-    status: '',
-    issueType: '',
-    dateFrom: '',
-    dateTo: '',
-    search: ''
-  });
-  const [sort, setSort] = useState<{ key: string; direction: 'asc' | 'desc' }>({
-    key: 'dateSubmitted',
-    direction: 'desc'
-  });
+  const [reports, setReports] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [adminProfile, setAdminProfile] = useState<any>(null);
+
+  const fetchReports = async (showSpinner = false) => {
+    if (showSpinner) setIsRefreshing(true);
+    try {
+      const adminToken = localStorage.getItem('adminToken');
+      const { data } = await axios.get('/api/reports', {
+        headers: { Authorization: `Bearer ${adminToken}` }
+      });
+      const formatted = data.data.map((r: any) => ({
+        id: r._id,
+        title: r.title,
+        type: r.category || 'General',
+        urgency: r.urgency || 'low',
+        status: r.status === 'Submitted' ? 'new' : r.status === 'In Progress' ? 'in_progress' : 'resolved',
+        location: r.location || 'Location Not Provided',
+        createdAt: new Date(r.createdAt),
+        description: r.description
+      }));
+      setReports(formatted.sort((a: any, b: any) => b.createdAt.getTime() - a.createdAt.getTime()));
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsLoading(false);
+      setIsRefreshing(false);
+    }
+  };
 
   useEffect(() => {
-    // Check admin authentication
     const adminSession = localStorage.getItem('adminSession');
-    if (!adminSession) {
+    const adminToken = localStorage.getItem('adminToken');
+    if (!adminSession || !adminToken) {
       navigate('/admin/login');
       return;
     }
-
-    // Simulate loading
-    const timer = setTimeout(() => setIsLoading(false), 500);
-    return () => clearTimeout(timer);
+    try { setAdminProfile(JSON.parse(adminSession)); } catch {}
+    fetchReports();
   }, [navigate]);
-
-  useEffect(() => {
-    let filtered = [...reports];
-
-    // Apply filters
-    if (filters.status) {
-      filtered = filtered.filter(report => report.status === filters.status);
-    }
-    if (filters.issueType) {
-      filtered = filtered.filter(report => report.issueType === filters.issueType);
-    }
-    if (filters.dateFrom) {
-      const fromDate = new Date(filters.dateFrom);
-      filtered = filtered.filter(report => report.dateSubmitted >= fromDate);
-    }
-    if (filters.dateTo) {
-      const toDate = new Date(filters.dateTo);
-      toDate.setHours(23, 59, 59, 999);
-      filtered = filtered.filter(report => report.dateSubmitted <= toDate);
-    }
-    if (filters.search) {
-      const searchTerm = filters.search.toLowerCase();
-      filtered = filtered.filter(report => 
-        report.id.toLowerCase().includes(searchTerm) ||
-        report.location.toLowerCase().includes(searchTerm) ||
-        report.description.toLowerCase().includes(searchTerm)
-      );
-    }
-
-    // Apply sorting
-    filtered.sort((a, b) => {
-      let aValue = a[sort.key as keyof typeof a];
-      let bValue = b[sort.key as keyof typeof b];
-
-      if (sort.key === 'dateSubmitted') {
-        aValue = new Date(aValue as string);
-        bValue = new Date(bValue as string);
-      }
-
-      if (aValue < bValue) return sort.direction === 'asc' ? -1 : 1;
-      if (aValue > bValue) return sort.direction === 'asc' ? 1 : -1;
-      return 0;
-    });
-
-    setFilteredReports(filtered);
-  }, [reports, filters, sort]);
-
-  const handleSort = (key: string) => {
-    setSort(prev => ({
-      key,
-      direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc'
-    }));
-  };
-
-  const handleFilterChange = (key: string, value: string) => {
-    setFilters(prev => ({ ...prev, [key]: value }));
-  };
-
-  const clearFilters = () => {
-    setFilters({
-      status: '',
-      issueType: '',
-      dateFrom: '',
-      dateTo: '',
-      search: ''
-    });
-  };
 
   const handleLogout = () => {
     localStorage.removeItem('adminSession');
+    localStorage.removeItem('adminToken');
     navigate('/admin/login');
   };
 
-  const statusOptions = [
-    { value: 'new', label: 'New' },
-    { value: 'in_progress', label: 'In Progress' },
-    { value: 'resolved', label: 'Resolved' },
-    { value: 'rejected', label: 'Rejected' }
-  ];
-
-  const issueTypeOptions = [
-    { value: 'Pothole', label: 'Pothole' },
-    { value: 'Sanitation', label: 'Sanitation' },
-    { value: 'Streetlight', label: 'Streetlight' },
-    { value: 'Water', label: 'Water' },
-    { value: 'Infrastructure', label: 'Infrastructure' }
-  ];
+  const filteredReports = reports.filter((report) => {
+    const matchesSearch = report.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                          report.id.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter === 'all' || report.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-slate-600">Loading reports...</p>
-        </div>
+      <div className="min-h-screen bg-[--civic-gray-50] flex flex-col items-center justify-center">
+        <div className="w-12 h-12 border-4 border-[--india-saffron]/30 border-t-[--india-saffron] rounded-full animate-spin mb-4" />
+        <p className="text-[--civic-navy] font-semibold tracking-wide">INITIALIZING WORKSPACE...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      {/* Header */}
-      <div className="bg-white border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="py-6 flex justify-between items-center">
+    <div className="min-h-screen bg-[--civic-gray-50] font-sans flex flex-col">
+      {/* ── Top Bar (Admin Standard) ── */}
+      <header className="bg-white border-b border-[--civic-gray-200] sticky top-0 z-50">
+        <div className="h-1 w-full bg-[--civic-navy]" />
+        <div className="max-w-[1400px] mx-auto px-6 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-8 h-8 bg-[--civic-navy] text-white flex items-center justify-center font-bold font-display rounded-sm">AD</div>
             <div>
-              <h1 className="text-3xl font-bold text-slate-900">Reports Management</h1>
-              <p className="mt-2 text-slate-600">Manage and track all civic issue reports</p>
+              <h1 className="text-sm font-bold text-[--civic-navy] leading-none mb-1 uppercase tracking-widest">Samadhan Command Center</h1>
+              <p className="text-[10px] text-[--civic-gray-600] font-medium tracking-wide">Central Civic Administration Panel</p>
             </div>
-            <div className="flex items-center space-x-4">
-              <nav className="flex space-x-4">
-                <button
-                  onClick={() => navigate('/admin/dashboard')}
-                  className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
-                >
-                  Dashboard
-                </button>
-                <button
-                  onClick={() => navigate('/admin/reports')}
-                  className="px-3 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg"
-                >
-                  Reports
-                </button>
-                <button
-                  onClick={() => navigate('/admin/analytics')}
-                  className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
-                >
-                  Analytics
-                </button>
-              </nav>
-              <button
-                onClick={handleLogout}
-                className="flex items-center space-x-2 px-4 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
-              >
-                <LogOut className="h-4 w-4" />
-                <span>Logout</span>
-              </button>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="hidden md:block text-right border-r border-[--civic-gray-200] pr-4">
+              <p className="text-xs font-bold text-[--civic-navy]">{adminProfile?.name || 'Administrator'}</p>
+              <p className="text-[10px] text-[--civic-gray-400] uppercase tracking-wider">{adminProfile?.email}</p>
             </div>
+            <button onClick={handleLogout} className="flex items-center gap-1.5 text-xs font-bold text-[#B91C1C] hover:bg-red-50 px-3 py-1.5 rounded transition-colors border border-transparent hover:border-red-100">
+              <LogOut size={14} /> SYSTEM DISCONNECT
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* ── Secondary Nav & Action Bar ── */}
+      <div className="bg-white border-b border-[--civic-gray-200] mb-6 shadow-sm">
+        <div className="max-w-[1400px] mx-auto px-6 py-2 flex flex-col sm:flex-row justify-between items-center gap-3">
+          <div className="flex items-center gap-6">
+            <Link to="/admin/dashboard" className="text-sm font-semibold text-[--civic-gray-600] hover:text-[--civic-navy] py-2 transition-colors">Operations Dashboard</Link>
+            <span className="text-sm font-bold text-[--india-saffron] border-b-2 border-[--india-saffron] py-2">Master Report Registry</span>
+            <Link to="/admin/analytics" className="text-sm font-semibold text-[--civic-gray-600] hover:text-[--civic-navy] py-2 transition-colors">Strategic Analytics</Link>
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Filtering Controls */}
-        <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6 mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-slate-900 flex items-center space-x-2">
-              <Filter className="h-5 w-5" />
-              <span>Filter Reports</span>
-            </h2>
-            <button
-              onClick={clearFilters}
-              className="text-sm text-blue-600 hover:text-blue-800 font-medium"
-            >
-              Clear All Filters
+      <div className="max-w-[1400px] mx-auto px-6 pb-12 flex-1 flex flex-col w-full">
+        {/* Controls */}
+        <div className="bg-white border border-[--civic-gray-200] rounded-sm p-4 mb-6 shadow-sm flex flex-col md:flex-row justify-between items-center gap-4">
+          <div className="flex flex-col md:flex-row gap-4 w-full md:w-3/4">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[--civic-gray-400]" />
+              <input
+                type="text"
+                placeholder="Search by Docket ID or Keywords..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-[--civic-gray-300] rounded-sm text-sm focus:border-[--civic-navy] focus:outline-none"
+              />
+            </div>
+            <div className="flex items-center gap-3">
+              <Filter className="h-4 w-4 text-[--civic-gray-500]" />
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="w-48 py-2 px-3 border border-[--civic-gray-300] rounded-sm text-sm focus:border-[--civic-navy] focus:outline-none text-[--civic-navy] font-medium"
+              >
+                <option value="all">Status: ALL</option>
+                <option value="new">Status: INCOMING</option>
+                <option value="in_progress">Status: IN PROGRESS</option>
+                <option value="resolved">Status: RESOLVED</option>
+              </select>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 w-full md:w-auto justify-end">
+            <button onClick={() => fetchReports(true)} disabled={isRefreshing} className="flex items-center gap-2 px-4 py-2 bg-[--civic-gray-100] text-[--civic-navy] hover:bg-[--civic-gray-200] rounded-sm text-xs font-bold uppercase tracking-widest border border-[--civic-gray-200] transition-colors disabled:opacity-50">
+              {isRefreshing ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />} SYNC
             </button>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-            {/* Search Bar */}
-            <div className="lg:col-span-2">
-              <label className="block text-sm font-medium text-slate-700 mb-1">Search</label>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
-                <input
-                  type="text"
-                  value={filters.search}
-                  onChange={(e) => handleFilterChange('search', e.target.value)}
-                  placeholder="Search by ID, location, or description..."
-                  className="w-full pl-10 pr-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-            </div>
-
-            {/* Status Filter */}
-            <FilterDropdown
-              label="Status"
-              value={filters.status}
-              onChange={(value) => handleFilterChange('status', value)}
-              options={statusOptions}
-              placeholder="All Statuses"
-            />
-
-            {/* Issue Type Filter */}
-            <FilterDropdown
-              label="Issue Type"
-              value={filters.issueType}
-              onChange={(value) => handleFilterChange('issueType', value)}
-              options={issueTypeOptions}
-              placeholder="All Types"
-            />
-
-            {/* Date Range */}
-            <div className="flex flex-col space-y-1">
-              <label className="text-sm font-medium text-slate-700">Date Range</label>
-              <div className="flex space-x-2">
-                <input
-                  type="date"
-                  value={filters.dateFrom}
-                  onChange={(e) => handleFilterChange('dateFrom', e.target.value)}
-                  className="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-                <input
-                  type="date"
-                  value={filters.dateTo}
-                  onChange={(e) => handleFilterChange('dateTo', e.target.value)}
-                  className="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Results Summary */}
-          <div className="mt-4 flex items-center justify-between text-sm text-slate-600">
-            <span>Showing {filteredReports.length} of {reports.length} reports</span>
-            <button className="flex items-center space-x-2 px-3 py-1 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors">
-              <Download className="h-4 w-4" />
-              <span>Export</span>
+            <button className="flex items-center gap-2 px-4 py-2 bg-[--civic-navy] text-white hover:bg-[--civic-navy-700] rounded-sm text-xs font-bold uppercase tracking-widest shadow-sm transition-colors">
+              <Download size={14} /> EXPORT CSV
             </button>
           </div>
         </div>
 
-        {/* Reports Table */}
-        <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-slate-200">
-              <thead className="bg-slate-50">
-                <tr>
-                  <SortableHeader
-                    label="Report ID"
-                    sortKey="id"
-                    currentSort={sort}
-                    onSort={handleSort}
-                  />
-                  <SortableHeader
-                    label="Issue Type"
-                    sortKey="issueType"
-                    currentSort={sort}
-                    onSort={handleSort}
-                  />
-                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                    Location
-                  </th>
-                  <SortableHeader
-                    label="Date Submitted"
-                    sortKey="dateSubmitted"
-                    currentSort={sort}
-                    onSort={handleSort}
-                  />
-                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                    Assigned To
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                    Priority
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                    Actions
-                  </th>
+        {/* Dense Table */}
+        <div className="bg-white border border-[--civic-gray-200] rounded-sm shadow-sm overflow-hidden flex-1 overflow-x-auto min-h-[400px]">
+          <table className="w-full text-left text-sm whitespace-nowrap">
+            <thead className="bg-[--civic-gray-50] border-b border-[--civic-gray-200]">
+              <tr>
+                <th className="px-5 py-4 text-[10px] font-bold text-[--civic-gray-500] uppercase tracking-widest w-[100px]">Docket ID</th>
+                <th className="px-5 py-4 text-[10px] font-bold text-[--civic-gray-500] uppercase tracking-widest">Incident Details</th>
+                <th className="px-5 py-4 text-[10px] font-bold text-[--civic-gray-500] uppercase tracking-widest w-[150px]">Status</th>
+                <th className="px-5 py-4 text-[10px] font-bold text-[--civic-gray-500] uppercase tracking-widest w-[150px]">Urgency</th>
+                <th className="px-5 py-4 text-[10px] font-bold text-[--civic-gray-500] uppercase tracking-widest w-[120px]">Time Log</th>
+                <th className="px-5 py-4 text-[10px] font-bold text-[--civic-gray-500] uppercase tracking-widest text-right w-[100px]">Action</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[--civic-gray-100]">
+              {filteredReports.map((r) => (
+                <tr key={r.id} className="hover:bg-[--civic-gray-50] transition-colors group">
+                  <td className="px-5 py-3">
+                    <span className="text-xs font-mono font-semibold text-[--civic-navy]">#{r.id.slice(-6).toUpperCase()}</span>
+                  </td>
+                  <td className="px-5 py-3 min-w-[250px]">
+                    <div className="flex flex-col">
+                      <span className="font-bold text-slate-800 text-[13px] truncate max-w-sm">{r.title}</span>
+                      <span className="text-[10px] text-slate-500 mt-0.5 max-w-sm truncate">{r.location}</span>
+                    </div>
+                  </td>
+                  <td className="px-5 py-3">
+                    {r.status === 'new' && <span className="text-[10px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-sm border border-blue-200 uppercase tracking-wider">Incoming</span>}
+                    {r.status === 'in_progress' && <span className="text-[10px] font-bold text-[--india-saffron] bg-orange-50 px-2 py-0.5 rounded-sm border border-orange-200 uppercase tracking-wider">In Progress</span>}
+                    {r.status === 'resolved' && <span className="text-[10px] font-bold text-[--india-green] bg-green-50 px-2 py-0.5 rounded-sm border border-green-200 uppercase tracking-wider">Resolved</span>}
+                  </td>
+                  <td className="px-5 py-3">
+                    {r.urgency === 'high' && <span className="text-[10px] font-bold text-white bg-[#B91C1C] px-2 py-0.5 rounded-sm uppercase tracking-wider">Critical</span>}
+                    {r.urgency === 'medium' && <span className="text-[10px] font-bold text-slate-800 bg-[--india-saffron] px-2 py-0.5 rounded-sm uppercase tracking-wider border border-orange-500">Elevated</span>}
+                    {r.urgency === 'low' && <span className="text-[10px] font-bold text-slate-800 bg-[--civic-gray-200] px-2 py-0.5 rounded-sm uppercase tracking-wider">Routine</span>}
+                  </td>
+                  <td className="px-5 py-3">
+                    <div className="text-[11px] text-slate-600 font-medium">
+                      {new Date(r.createdAt).toLocaleDateString('en-GB')}<br/>
+                      <span className="text-[10px] text-slate-400">{formatTimeAgo(r.createdAt)}</span>
+                    </div>
+                  </td>
+                  <td className="px-5 py-3 text-right">
+                    <button onClick={() => navigate(`/admin/reports/${r.id}`)} className="text-[10px] font-bold uppercase tracking-wider text-[--civic-navy] bg-white border border-[--civic-gray-300] hover:border-[--civic-navy] hover:bg-[--civic-gray-50] transition-colors px-3 py-1.5 rounded-sm shadow-sm flex items-center justify-center gap-1 w-full">
+                      Open <ArrowRight size={10} />
+                    </button>
+                  </td>
                 </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-slate-200">
-                {filteredReports.map((report) => (
-                  <tr key={report.id} className="hover:bg-slate-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">
-                      {report.id}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900">
-                      {report.issueType}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-slate-900 max-w-xs truncate">
-                      {report.location}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900">
-                      {formatDate(report.dateSubmitted)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(report.status)}`}>
-                        {getStatusLabel(report.status)}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900">
-                      {report.assignedTo}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      <span className={`font-medium ${getPriorityColor(report.priority)}`}>
-                        {getPriorityLabel(report.priority)}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex items-center space-x-2">
-                        <button 
-                          onClick={() => navigate(`/admin/reports/${report.id}`)}
-                          className="text-blue-600 hover:text-blue-900 flex items-center space-x-1"
-                        >
-                          <Eye className="h-4 w-4" />
-                          <span>View</span>
-                        </button>
-                        <button className="text-slate-600 hover:text-slate-900">
-                          <MoreVertical className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {filteredReports.length === 0 && (
-            <div className="text-center py-12">
-              <div className="text-slate-400 mb-4">
-                <Filter className="h-12 w-12 mx-auto" />
-              </div>
-              <h3 className="text-lg font-medium text-slate-900 mb-2">No reports found</h3>
-              <p className="text-slate-600">Try adjusting your filters to see more results.</p>
-            </div>
-          )}
+              ))}
+              {filteredReports.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="px-5 py-16 text-center">
+                    <Activity size={32} className="mx-auto text-[--civic-gray-300] mb-3" />
+                    <p className="text-sm font-semibold text-slate-600">No records found matching criteria.</p>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

@@ -1,469 +1,259 @@
-// src/pages/CareersPage.tsx
+// src/pages/CareersPage.tsx — India Gov Design System v3
 import { useState } from 'react';
-import { 
-  Users, 
-  Heart, 
-  Lightbulb, 
-  Globe, 
-  Award,
-  Star,
-  ArrowRight,
-  MapPin,
-  Clock,
-  Briefcase,
-  GraduationCap,
-  Code,
-  Smartphone,
-  Database,
-  Shield,
-  TrendingUp,
-  Coffee,
-  Home,
-  DollarSign,
-  BookOpen,
-  Zap,
-  Target,
-  CheckCircle,
-  ExternalLink,
-  Send
+import {
+  Users, Heart, Lightbulb, Globe, Award, ArrowRight, MapPin, Clock,
+  Briefcase, Code, Database, Shield, TrendingUp, Coffee, Home,
+  BookOpen, Target, CheckCircle, ExternalLink, Send, ChevronDown, ChevronUp,
+  Smartphone, DollarSign
 } from 'lucide-react';
+import { BackToTop } from '../components/ui/BackToTop';
+
+const jobOpenings = [
+  {
+    id: 1, title: 'Senior Full Stack Developer', department: 'Engineering',
+    location: 'Bangalore, India', type: 'Full-time', experience: '3–5 yrs',
+    salary: '₹8–15 LPA', posted: '2 days ago', accent: 'saffron',
+    icon: <Code size={18} />,
+    description: 'Build the next generation of civic engagement platforms with our engineering team.',
+    skills: ['React', 'Node.js', 'TypeScript', 'PostgreSQL', 'AWS'],
+    requirements: ['3+ yrs React, Node.js, TypeScript', 'SQL/NoSQL databases', 'Cloud platform experience', 'CI/CD familiarity'],
+    responsibilities: ['Build & maintain web applications', 'Code reviews & architecture', 'Mentor junior devs', 'Cross-functional collaboration'],
+    benefits: ['Health Insurance', 'Flexible Hours', 'Learning Budget', 'Stock Options'],
+  },
+  {
+    id: 2, title: 'Product Manager', department: 'Product',
+    location: 'Mumbai, India', type: 'Full-time', experience: '4–6 yrs',
+    salary: '₹12–20 LPA', posted: '1 week ago', accent: 'green',
+    icon: <Target size={18} />,
+    description: "Lead product strategy for India's leading civic engagement platform.",
+    skills: ['Product Management', 'Analytics', 'User Research', 'Agile', 'SaaS'],
+    requirements: ['4+ yrs B2B SaaS product management', 'Data-driven decision making', 'Agile methodology', 'Strong stakeholder communication'],
+    responsibilities: ['Define product roadmap', 'Deliver features with engineering', 'Conduct user research', 'Analyse product metrics'],
+    benefits: ['Health Insurance', 'Flexible Hours', 'Learning Budget', 'Stock Options'],
+  },
+  {
+    id: 3, title: 'UX/UI Designer', department: 'Design',
+    location: 'Delhi, India', type: 'Full-time', experience: '2–4 yrs',
+    salary: '₹6–12 LPA', posted: '3 days ago', accent: 'navy',
+    icon: <Smartphone size={18} />,
+    description: 'Create intuitive experiences that make government processes simple for 1.4B Indians.',
+    skills: ['Figma', 'User Research', 'Prototyping', 'Design Systems', 'Accessibility'],
+    requirements: ['2+ yrs UX/UI design', 'Figma / Sketch proficiency', 'Strong design portfolio', 'Accessibility standards'],
+    responsibilities: ['Design user interfaces', 'Run usability testing', 'Create wireframes & prototypes', 'Maintain design system'],
+    benefits: ['Health Insurance', 'Flexible Hours', 'Learning Budget', 'Design Tools'],
+  },
+  {
+    id: 4, title: 'DevOps Engineer', department: 'Engineering',
+    location: 'Pune, India', type: 'Full-time', experience: '3–5 yrs',
+    salary: '₹10–18 LPA', posted: '5 days ago', accent: 'saffron',
+    icon: <Database size={18} />,
+    description: 'Build and operate our cloud infrastructure for high availability at national scale.',
+    skills: ['AWS', 'Docker', 'Kubernetes', 'CI/CD', 'Python'],
+    requirements: ['3+ yrs DevOps / infra', 'AWS + Docker + Kubernetes', 'CI/CD automation', 'Monitoring & logging tools'],
+    responsibilities: ['Design cloud infrastructure', 'Automate deployment', 'Monitor system performance', 'Ensure security compliance'],
+    benefits: ['Health Insurance', 'Flexible Hours', 'Learning Budget', 'Stock Options'],
+  },
+  {
+    id: 5, title: 'Business Development Manager', department: 'Sales',
+    location: 'Chennai, India', type: 'Full-time', experience: '3–5 yrs',
+    salary: '₹8–15 LPA + Commission', posted: '1 week ago', accent: 'green',
+    icon: <Globe size={18} />,
+    description: 'Drive partnerships with government agencies and municipal corporations across India.',
+    skills: ['B2B Sales', 'Government Relations', 'CRM', 'Proposal Writing', 'Negotiation'],
+    requirements: ['3+ yrs B2B sales (govt preferred)', 'Government network', 'CRM & proposal experience', 'Knowledge of procurement processes'],
+    responsibilities: ['Pursue new opportunities', 'Build govt stakeholder relationships', 'Prepare proposals', 'Negotiate and close deals'],
+    benefits: ['Health Insurance', 'Flexible Hours', 'Commission', 'Travel Allowance'],
+  },
+  {
+    id: 6, title: 'Data Scientist', department: 'Analytics',
+    location: 'Hyderabad, India', type: 'Full-time', experience: '2–4 yrs',
+    salary: '₹9–16 LPA', posted: '4 days ago', accent: 'navy',
+    icon: <TrendingUp size={18} />,
+    description: "Analyse civic data to help cities make better decisions for their citizens.",
+    skills: ['Python', 'Machine Learning', 'SQL', 'Data Visualisation', 'Statistics'],
+    requirements: ['2+ yrs data science', 'Python / R', 'ML & statistical analysis', 'Big data (Spark / Hadoop)'],
+    responsibilities: ['Analyse civic dataset', 'Build predictive models', 'Create visualizations', 'Present insights to govt stakeholders'],
+    benefits: ['Health Insurance', 'Flexible Hours', 'Learning Budget', 'Stock Options'],
+  },
+];
+
+const benefits = [
+  { icon: <Home size={20} />,     title: 'Remote Work',           desc: 'Work from anywhere in India with flexible hours.' },
+  { icon: <DollarSign size={20} />, title: 'Competitive Salary',  desc: 'Industry-leading pay with performance bonuses.' },
+  { icon: <BookOpen size={20} />, title: 'Learning Budget',       desc: '₹50,000 annual budget for courses, books & events.' },
+  { icon: <Shield size={20} />,   title: 'Health Insurance',      desc: 'Comprehensive coverage for you and your family.' },
+  { icon: <Coffee size={20} />,   title: 'Wellness Program',      desc: 'Mental health support, gym memberships & activities.' },
+  { icon: <Award size={20} />,    title: 'Stock Options',         desc: 'Equity participation and ownership in the company.' },
+];
+
+const accentBg = (a: string) => a === 'saffron' ? 'bg-[--india-saffron]' : a === 'green' ? 'bg-[--india-green]' : 'bg-[--civic-navy]';
+const accentText = (a: string) => a === 'saffron' ? 'text-[--india-saffron]' : a === 'green' ? 'text-[--india-green]' : 'text-[--civic-navy]';
+const accentBorder = (a: string) => a === 'saffron' ? 'border-t-[--india-saffron]' : a === 'green' ? 'border-t-[--india-green]' : 'border-t-[--civic-navy]';
 
 export function CareersPage() {
-  const [selectedJob, setSelectedJob] = useState<number | null>(null);
-  const [applicationForm, setApplicationForm] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    position: '',
-    experience: '',
-    resume: null as File | null,
-    coverLetter: '',
-    portfolio: ''
-  });
+  const [openJob, setOpenJob] = useState<number | null>(null);
+  const [form, setForm] = useState({ name: '', email: '', phone: '', position: '', coverLetter: '', portfolio: '' });
+  const [submitted, setSubmitted] = useState(false);
 
-  const jobOpenings = [
-    {
-      id: 1,
-      title: "Senior Full Stack Developer",
-      department: "Engineering",
-      location: "Bangalore, India",
-      type: "Full-time",
-      experience: "3-5 years",
-      salary: "₹8-15 LPA",
-      posted: "2 days ago",
-      description: "We're looking for a passionate full-stack developer to join our engineering team and help build the next generation of civic engagement platforms.",
-      requirements: [
-        "3+ years of experience with React, Node.js, and TypeScript",
-        "Strong knowledge of databases (PostgreSQL, MongoDB)",
-        "Experience with cloud platforms (AWS, Azure, or GCP)",
-        "Familiarity with DevOps practices and CI/CD pipelines",
-        "Excellent problem-solving and communication skills"
-      ],
-      responsibilities: [
-        "Develop and maintain web applications using modern technologies",
-        "Collaborate with cross-functional teams to deliver high-quality software",
-        "Participate in code reviews and technical discussions",
-        "Contribute to architectural decisions and system design",
-        "Mentor junior developers and share knowledge"
-      ],
-      benefits: ["Health Insurance", "Flexible Work Hours", "Learning Budget", "Stock Options"],
-      skills: ["React", "Node.js", "TypeScript", "PostgreSQL", "AWS"]
-    },
-    {
-      id: 2,
-      title: "Product Manager",
-      department: "Product",
-      location: "Mumbai, India",
-      type: "Full-time",
-      experience: "4-6 years",
-      salary: "₹12-20 LPA",
-      posted: "1 week ago",
-      description: "Lead product strategy and execution for our civic engagement platform, working closely with engineering, design, and business teams.",
-      requirements: [
-        "4+ years of product management experience in B2B SaaS",
-        "Strong analytical and data-driven decision making skills",
-        "Experience with user research and customer interviews",
-        "Knowledge of agile development methodologies",
-        "Excellent communication and stakeholder management skills"
-      ],
-      responsibilities: [
-        "Define product roadmap and strategy",
-        "Work with engineering teams to deliver features on time",
-        "Conduct user research and gather customer feedback",
-        "Analyze product metrics and make data-driven decisions",
-        "Collaborate with sales and marketing teams"
-      ],
-      benefits: ["Health Insurance", "Flexible Work Hours", "Learning Budget", "Stock Options"],
-      skills: ["Product Management", "Analytics", "User Research", "Agile", "SaaS"]
-    },
-    {
-      id: 3,
-      title: "UX/UI Designer",
-      department: "Design",
-      location: "Delhi, India",
-      type: "Full-time",
-      experience: "2-4 years",
-      salary: "₹6-12 LPA",
-      posted: "3 days ago",
-      description: "Create intuitive and beautiful user experiences for our civic engagement platform, making complex government processes simple for citizens.",
-      requirements: [
-        "2+ years of UX/UI design experience",
-        "Proficiency in Figma, Sketch, or Adobe Creative Suite",
-        "Strong portfolio showcasing user-centered design",
-        "Experience with user research and usability testing",
-        "Knowledge of design systems and accessibility standards"
-      ],
-      responsibilities: [
-        "Design user interfaces and user experiences",
-        "Conduct user research and usability testing",
-        "Create wireframes, prototypes, and design specifications",
-        "Collaborate with developers to ensure design implementation",
-        "Maintain and evolve our design system"
-      ],
-      benefits: ["Health Insurance", "Flexible Work Hours", "Learning Budget", "Design Tools"],
-      skills: ["Figma", "User Research", "Prototyping", "Design Systems", "Accessibility"]
-    },
-    {
-      id: 4,
-      title: "DevOps Engineer",
-      department: "Engineering",
-      location: "Pune, India",
-      type: "Full-time",
-      experience: "3-5 years",
-      salary: "₹10-18 LPA",
-      posted: "5 days ago",
-      description: "Build and maintain our cloud infrastructure, ensuring high availability and scalability of our civic engagement platform.",
-      requirements: [
-        "3+ years of DevOps/Infrastructure experience",
-        "Strong knowledge of AWS, Docker, and Kubernetes",
-        "Experience with CI/CD pipelines and automation",
-        "Knowledge of monitoring and logging tools",
-        "Scripting skills (Python, Bash, or similar)"
-      ],
-      responsibilities: [
-        "Design and implement cloud infrastructure",
-        "Automate deployment and scaling processes",
-        "Monitor system performance and troubleshoot issues",
-        "Ensure security and compliance standards",
-        "Collaborate with development teams on infrastructure needs"
-      ],
-      benefits: ["Health Insurance", "Flexible Work Hours", "Learning Budget", "Stock Options"],
-      skills: ["AWS", "Docker", "Kubernetes", "CI/CD", "Python"]
-    },
-    {
-      id: 5,
-      title: "Business Development Manager",
-      department: "Sales",
-      location: "Chennai, India",
-      type: "Full-time",
-      experience: "3-5 years",
-      salary: "₹8-15 LPA + Commission",
-      posted: "1 week ago",
-      description: "Drive business growth by building relationships with government agencies and municipal corporations across India.",
-      requirements: [
-        "3+ years of B2B sales experience, preferably in government sector",
-        "Strong network in government and municipal organizations",
-        "Excellent communication and presentation skills",
-        "Experience with CRM systems and sales processes",
-        "Understanding of government procurement processes"
-      ],
-      responsibilities: [
-        "Identify and pursue new business opportunities",
-        "Build relationships with key government stakeholders",
-        "Prepare proposals and presentations for clients",
-        "Negotiate contracts and close deals",
-        "Collaborate with product and engineering teams"
-      ],
-      benefits: ["Health Insurance", "Flexible Work Hours", "Commission", "Travel Allowance"],
-      skills: ["B2B Sales", "Government Relations", "CRM", "Proposal Writing", "Negotiation"]
-    },
-    {
-      id: 6,
-      title: "Data Scientist",
-      department: "Analytics",
-      location: "Hyderabad, India",
-      type: "Full-time",
-      experience: "2-4 years",
-      salary: "₹9-16 LPA",
-      posted: "4 days ago",
-      description: "Analyze civic engagement data to provide insights that help cities make better decisions and improve citizen services.",
-      requirements: [
-        "2+ years of data science experience",
-        "Strong programming skills in Python or R",
-        "Experience with machine learning and statistical analysis",
-        "Knowledge of SQL and data visualization tools",
-        "Experience with big data technologies (Spark, Hadoop)"
-      ],
-      responsibilities: [
-        "Analyze civic engagement and city data",
-        "Build predictive models for urban planning",
-        "Create data visualizations and dashboards",
-        "Collaborate with product teams on data-driven features",
-        "Present insights to government stakeholders"
-      ],
-      benefits: ["Health Insurance", "Flexible Work Hours", "Learning Budget", "Stock Options"],
-      skills: ["Python", "Machine Learning", "SQL", "Data Visualization", "Statistics"]
-    }
-  ];
-
-  const companyValues = [
-    {
-      icon: Users,
-      title: "Collaboration",
-      description: "We believe in the power of teamwork and open communication to achieve great things together."
-    },
-    {
-      icon: Heart,
-      title: "Impact",
-      description: "Every line of code we write and every feature we build makes a real difference in people's lives."
-    },
-    {
-      icon: Lightbulb,
-      title: "Innovation",
-      description: "We encourage creative thinking and embrace new technologies to solve complex civic challenges."
-    },
-    {
-      icon: Globe,
-      title: "Diversity",
-      description: "We celebrate different perspectives and backgrounds, creating an inclusive environment for all."
-    }
-  ];
-
-  const benefits = [
-    {
-      icon: Home,
-      title: "Remote Work",
-      description: "Work from anywhere in India with flexible hours"
-    },
-    {
-      icon: DollarSign,
-      title: "Competitive Salary",
-      description: "Industry-leading compensation with performance bonuses"
-    },
-    {
-      icon: BookOpen,
-      title: "Learning & Development",
-      description: "₹50,000 annual budget for courses, conferences, and books"
-    },
-    {
-      icon: Shield,
-      title: "Health Insurance",
-      description: "Comprehensive health coverage for you and your family"
-    },
-    {
-      icon: Coffee,
-      title: "Wellness Program",
-      description: "Mental health support, gym memberships, and wellness activities"
-    },
-    {
-      icon: Award,
-      title: "Stock Options",
-      description: "Ownership in the company with equity participation"
-    }
-  ];
-
-  const handleInputChange = (field: string, value: string | File) => {
-    setApplicationForm(prev => ({
-      ...prev,
-      [field]: value
-    }));
-  };
-
-  const handleSubmitApplication = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Handle application submission
-    alert('Application submitted successfully! We will get back to you soon.');
-  };
+  const handleSubmit = (e: React.FormEvent) => { e.preventDefault(); setSubmitted(true); };
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      {/* ===== Hero Section ===== */}
-      <section className="bg-gradient-to-br from-teal-500 to-teal-600 text-white py-20">
-        <div className="max-w-7xl mx-auto px-8">
-          <div className="text-center">
-            <h1 className="text-5xl md:text-6xl font-extrabold mb-6">
-              Work with <span className="text-yellow-300">Us</span>
-            </h1>
-            <p className="text-xl text-teal-100 mb-8 max-w-3xl mx-auto">
-              Join our mission to transform civic engagement across India. Be part of a team that's building technology to make cities smarter and communities stronger.
-            </p>
-            <div className="flex justify-center">
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 max-w-2xl">
-                <p className="text-teal-100 font-medium">
-                  "Build the future of civic technology with passionate people who care about making a difference."
-                </p>
-              </div>
+    <div className="text-[--civic-text]">
+
+      {/* ── Hero ── */}
+      <section className="relative min-h-[300px] flex items-center" style={{ marginTop: '66px' }}>
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: `url('https://images.unsplash.com/photo-1497366216548-37526070297c?w=1400&q=80&fit=crop')` }}
+        />
+        <div className="absolute inset-0 bg-[--civic-navy]/88" />
+        <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-10 py-16 w-full">
+          <div className="flex items-center gap-2 mb-4">
+            <span className="section-label">Opportunities</span>
+            <span className="section-label green">6 Open Roles</span>
+          </div>
+          <h1 className="font-display text-4xl md:text-5xl font-extrabold text-white mb-3">
+            Work <span className="text-[--india-saffron]">With Us</span>
+          </h1>
+          <p className="text-white/70 max-w-xl text-base md:text-lg">
+            Join the team building India's civic engagement platform. Be part of the mission — every line of code you write improves a real citizen's life.
+          </p>
+        </div>
+      </section>
+
+      {/* ── Why us ── */}
+      <section className="py-14 bg-white border-b-4 border-[--india-saffron]">
+        <div className="max-w-6xl mx-auto px-6 md:px-10">
+          <div className="flex items-center gap-3 mb-8">
+            <div className="h-8 w-1 bg-[--india-saffron]" />
+            <div>
+              <span className="section-label mb-1 inline-block">Why Samadhan</span>
+              <h2 className="font-display text-2xl font-extrabold text-[--civic-navy]">Build Technology That Matters</h2>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* ===== Why Work With Us ===== */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-slate-900 mb-4">
-              Why Work at <span className="text-teal-500">Samadhan</span>?
-            </h2>
-            <p className="text-lg text-slate-600 max-w-3xl mx-auto">
-              We're not just building software – we're creating tools that empower citizens and transform how governments serve their communities.
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {companyValues.map((value, index) => {
-              const IconComponent = value.icon;
-              return (
-                <div key={index} className="text-center">
-                  <div className="w-16 h-16 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <IconComponent className="text-teal-600" size={28} />
-                  </div>
-                  <h3 className="text-xl font-bold text-slate-900 mb-4">{value.title}</h3>
-                  <p className="text-slate-600 leading-relaxed">{value.description}</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {[
+              { Icon: Users,    title: 'Collaboration',  desc: 'Open communication and teamwork across all functions.', accent: 'saffron' },
+              { Icon: Heart,    title: 'Real Impact',    desc: 'Your code resolves real civic issues for real citizens.', accent: 'green'   },
+              { Icon: Lightbulb,title: 'Innovation',     desc: 'Embrace new tech to solve hard civic challenges.', accent: 'saffron' },
+              { Icon: Globe,    title: 'Diversity',      desc: 'Inclusive environment celebrating every perspective.', accent: 'green'   },
+            ].map(({ Icon, title, desc, accent }) => (
+              <div key={title} className={`civic-card p-5 border-t-4 ${accentBorder(accent)}`}>
+                <div className={`w-10 h-10 ${accentBg(accent)} rounded flex items-center justify-center text-white mb-3`}>
+                  <Icon size={18} />
                 </div>
-              );
-            })}
+                <h3 className="font-display font-bold text-[--civic-navy] mb-1">{title}</h3>
+                <p className="text-xs text-[--civic-gray-600] leading-relaxed">{desc}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* ===== Benefits Section ===== */}
-      <section className="py-16 bg-slate-50">
-        <div className="max-w-7xl mx-auto px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-slate-900 mb-4">
-              Perks & Benefits
-            </h2>
-            <p className="text-lg text-slate-600">
-              We believe in taking care of our team so they can do their best work
-            </p>
+      {/* ── Perks strip ── */}
+      <section className="py-14 bg-[#FFF8F0]">
+        <div className="max-w-6xl mx-auto px-6 md:px-10">
+          <div className="flex items-center gap-3 mb-8">
+            <div className="h-8 w-1 bg-[--india-green]" />
+            <div>
+              <span className="section-label green mb-1 inline-block">Benefits</span>
+              <h2 className="font-display text-2xl font-extrabold text-[--civic-navy]">Perks & Benefits</h2>
+            </div>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {benefits.map((benefit, index) => {
-              const IconComponent = benefit.icon;
-              return (
-                <div key={index} className="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
-                  <div className="w-12 h-12 bg-teal-100 rounded-lg flex items-center justify-center mb-4">
-                    <IconComponent className="text-teal-600" size={24} />
-                  </div>
-                  <h3 className="text-lg font-bold text-slate-900 mb-2">{benefit.title}</h3>
-                  <p className="text-slate-600">{benefit.description}</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {benefits.map(({ icon, title, desc }) => (
+              <div key={title} className="civic-card p-5 flex gap-4">
+                <div className="w-9 h-9 bg-orange-100 text-[--india-saffron] rounded flex items-center justify-center flex-shrink-0">{icon}</div>
+                <div>
+                  <p className="font-semibold text-[--civic-navy] text-sm mb-1">{title}</p>
+                  <p className="text-xs text-[--civic-gray-600] leading-relaxed">{desc}</p>
                 </div>
-              );
-            })}
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* ===== Open Positions ===== */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-slate-900 mb-4">
-              Open Positions
-            </h2>
-            <p className="text-lg text-slate-600">
-              Join our growing team and help us build the future of civic engagement
-            </p>
+      {/* ── Open Positions ── */}
+      <section className="py-14 bg-white border-b border-[--civic-gray-200]">
+        <div className="max-w-5xl mx-auto px-6 md:px-10">
+          <div className="flex items-center gap-3 mb-8">
+            <div className="h-8 w-1 bg-[--india-saffron]" />
+            <div>
+              <span className="section-label mb-1 inline-block">Open Positions</span>
+              <h2 className="font-display text-2xl font-extrabold text-[--civic-navy]">Current Openings</h2>
+            </div>
           </div>
-          
-          <div className="space-y-6">
+          <div className="space-y-4">
             {jobOpenings.map((job) => (
-              <div key={job.id} className="bg-white border border-slate-200 rounded-lg shadow-sm hover:shadow-md transition">
-                <div className="p-6">
-                  <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h3 className="text-xl font-bold text-slate-900">{job.title}</h3>
-                        <span className="bg-green-100 text-green-600 px-2 py-1 rounded-full text-sm font-medium">
-                          {job.type}
-                        </span>
+              <div key={job.id} className={`civic-card border-l-4 ${accentBorder(job.accent).replace('border-t', 'border-l')}`}>
+                <div className="p-5">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="flex items-start gap-3">
+                      <div className={`w-9 h-9 rounded ${accentBg(job.accent)} text-white flex items-center justify-center flex-shrink-0 mt-0.5`}>
+                        {job.icon}
                       </div>
-                      
-                      <div className="flex flex-wrap items-center gap-4 text-sm text-slate-600 mb-3">
-                        <div className="flex items-center gap-1">
-                          <MapPin size={16} />
-                          {job.location}
+                      <div>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h3 className="font-display font-bold text-[--civic-navy]">{job.title}</h3>
+                          <span className="bg-[--india-green]/10 text-[--india-green] text-xs font-bold px-2 py-0.5 rounded">{job.type}</span>
                         </div>
-                        <div className="flex items-center gap-1">
-                          <Briefcase size={16} />
-                          {job.department}
+                        <div className="flex flex-wrap items-center gap-3 text-xs text-[--civic-gray-600] mt-1">
+                          <span className="flex items-center gap-1"><MapPin size={11} />{job.location}</span>
+                          <span className="flex items-center gap-1"><Briefcase size={11} />{job.department}</span>
+                          <span className="flex items-center gap-1"><Clock size={11} />{job.posted}</span>
+                          <span className={`font-bold ${accentText(job.accent)}`}>{job.salary}</span>
                         </div>
-                        <div className="flex items-center gap-1">
-                          <GraduationCap size={16} />
-                          {job.experience}
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <DollarSign size={16} />
-                          {job.salary}
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Clock size={16} />
-                          {job.posted}
-                        </div>
-                      </div>
-                      
-                      <p className="text-slate-600 mb-4">{job.description}</p>
-                      
-                      <div className="flex flex-wrap gap-2">
-                        {job.skills.map((skill, index) => (
-                          <span key={index} className="bg-slate-100 text-slate-700 px-3 py-1 rounded-full text-sm">
-                            {skill}
-                          </span>
-                        ))}
                       </div>
                     </div>
-                    
-                    <div className="flex flex-col gap-2">
+                    <div className="flex gap-2 flex-shrink-0">
                       <button
-                        onClick={() => setSelectedJob(selectedJob === job.id ? null : job.id)}
-                        className="brand-btn px-6 py-2 rounded-lg transition inline-flex items-center gap-2"
+                        onClick={() => setOpenJob(openJob === job.id ? null : job.id)}
+                        className="flex items-center gap-1 text-xs font-bold text-[--civic-gray-600] border border-[--civic-gray-200] px-3 py-1.5 rounded hover:bg-[--civic-gray-50] transition-colors"
                       >
-                        {selectedJob === job.id ? 'Hide Details' : 'View Details'}
-                        <ArrowRight size={16} />
+                        {openJob === job.id ? <><ChevronUp size={13} /> Hide</> : <><ChevronDown size={13} /> Details</>}
                       </button>
-                      <button className="border border-brand text-slate-700 px-6 py-2 rounded-lg hover:bg-brand-accent/40 transition">
+                      <button className={`text-xs font-bold text-white px-4 py-1.5 rounded ${accentBg(job.accent)} transition-opacity hover:opacity-90`}>
                         Apply Now
                       </button>
                     </div>
                   </div>
-                  
-                  {selectedJob === job.id && (
-                    <div className="mt-6 pt-6 border-t border-slate-200">
-                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                        <div>
-                          <h4 className="font-semibold text-slate-900 mb-3">Requirements:</h4>
-                          <ul className="space-y-2">
-                            {job.requirements.map((req, index) => (
-                              <li key={index} className="flex items-start gap-2 text-sm text-slate-600">
-                                <CheckCircle className="text-green-500 mt-1" size={14} />
-                                {req}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                        
-                        <div>
-                          <h4 className="font-semibold text-slate-900 mb-3">Responsibilities:</h4>
-                          <ul className="space-y-2">
-                            {job.responsibilities.map((resp, index) => (
-                              <li key={index} className="flex items-start gap-2 text-sm text-slate-600">
-                                <CheckCircle className="text-blue-500 mt-1" size={14} />
-                                {resp}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
+                  <p className="text-xs text-[--civic-gray-600] mt-3 leading-relaxed">{job.description}</p>
+                  <div className="flex flex-wrap gap-1.5 mt-3">
+                    {job.skills.map((s) => (
+                      <span key={s} className="bg-[--civic-gray-100] text-[--civic-gray-600] text-xs px-2.5 py-1 rounded">{s}</span>
+                    ))}
+                  </div>
+
+                  {openJob === job.id && (
+                    <div className="mt-5 pt-5 border-t border-[--civic-gray-200] grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <p className="font-semibold text-[--civic-navy] text-sm mb-2">Requirements</p>
+                        <ul className="space-y-1.5">
+                          {job.requirements.map((r) => (
+                            <li key={r} className="flex items-start gap-2 text-xs text-[--civic-gray-600]">
+                              <CheckCircle size={11} className="text-[--india-green] mt-0.5 flex-shrink-0" />
+                              {r}
+                            </li>
+                          ))}
+                        </ul>
                       </div>
-                      
-                      <div className="mt-6">
-                        <h4 className="font-semibold text-slate-900 mb-3">Benefits:</h4>
+                      <div>
+                        <p className="font-semibold text-[--civic-navy] text-sm mb-2">Responsibilities</p>
+                        <ul className="space-y-1.5">
+                          {job.responsibilities.map((r) => (
+                            <li key={r} className="flex items-start gap-2 text-xs text-[--civic-gray-600]">
+                              <CheckCircle size={11} className={`${accentText(job.accent)} mt-0.5 flex-shrink-0`} />
+                              {r}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      <div className="md:col-span-2">
+                        <p className="font-semibold text-[--civic-navy] text-sm mb-2">Benefits</p>
                         <div className="flex flex-wrap gap-2">
-                          {job.benefits.map((benefit, index) => (
-                            <span key={index} className="bg-teal-100 text-teal-700 px-3 py-1 rounded-full text-sm">
-                              {benefit}
-                            </span>
+                          {job.benefits.map((b) => (
+                            <span key={b} className={`text-xs font-bold text-white px-3 py-1 rounded ${accentBg(job.accent)}`}>{b}</span>
                           ))}
                         </div>
                       </div>
@@ -476,215 +266,108 @@ export function CareersPage() {
         </div>
       </section>
 
-      {/* ===== Application Form ===== */}
-      <section className="py-16 bg-slate-50">
-        <div className="max-w-4xl mx-auto px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-slate-900 mb-4">
-              Apply Now
-            </h2>
-            <p className="text-lg text-slate-600">
-              Ready to join our team? Fill out the application form below
-            </p>
+      {/* ── Application Form ── */}
+      <section className="py-14 bg-[--civic-gray-50]">
+        <div className="max-w-3xl mx-auto px-6 md:px-10">
+          <div className="flex items-center gap-3 mb-8">
+            <div className="h-8 w-1 bg-[--india-saffron]" />
+            <div>
+              <span className="section-label mb-1 inline-block">Apply Now</span>
+              <h2 className="font-display text-2xl font-extrabold text-[--civic-navy]">Submit Your Application</h2>
+            </div>
           </div>
-          
-          <div className="bg-white rounded-lg shadow-lg p-8">
-            <form onSubmit={handleSubmitApplication} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="bg-white border border-[--civic-gray-200] rounded-lg p-6 shadow-sm">
+            {submitted ? (
+              <div className="text-center py-10">
+                <div className="w-14 h-14 bg-[--india-green] rounded-full flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle size={28} className="text-white" />
+                </div>
+                <h3 className="font-display font-bold text-xl text-[--civic-navy] mb-2">Application Received!</h3>
+                <p className="text-[--civic-gray-600] text-sm">Thank you — we'll review your application and get back to you within 5 business days.</p>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="space-y-5">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  {[
+                    { field: 'name',  label: 'Full Name',  type: 'text',  required: true  },
+                    { field: 'email', label: 'Email',       type: 'email', required: true  },
+                    { field: 'phone', label: 'Phone',       type: 'tel',   required: false },
+                  ].map(({ field, label, type, required }) => (
+                    <div key={field}>
+                      <label className="block text-xs font-semibold text-[--civic-navy] mb-1.5">{label}{required && ' *'}</label>
+                      <input
+                        type={type}
+                        required={required}
+                        value={(form as any)[field]}
+                        onChange={(e) => setForm(f => ({ ...f, [field]: e.target.value }))}
+                        className="w-full px-3 py-2.5 text-sm border border-[--civic-gray-200] rounded focus:outline-none focus:ring-2 focus:ring-[--india-saffron]/40 focus:border-[--india-saffron]"
+                      />
+                    </div>
+                  ))}
+                  <div>
+                    <label className="block text-xs font-semibold text-[--civic-navy] mb-1.5">Position *</label>
+                    <select
+                      required
+                      value={form.position}
+                      onChange={(e) => setForm(f => ({ ...f, position: e.target.value }))}
+                      className="w-full px-3 py-2.5 text-sm border border-[--civic-gray-200] rounded focus:outline-none focus:ring-2 focus:ring-[--india-saffron]/40 focus:border-[--india-saffron]"
+                    >
+                      <option value="">Select a role</option>
+                      {jobOpenings.map((j) => <option key={j.id} value={j.title}>{j.title}</option>)}
+                    </select>
+                  </div>
+                </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">
-                    Full Name *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={applicationForm.name}
-                    onChange={(e) => handleInputChange('name', e.target.value)}
-                    className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                  <label className="block text-xs font-semibold text-[--civic-navy] mb-1.5">Resume/CV * <span className="font-normal text-[--civic-gray-400]">(PDF / DOC)</span></label>
+                  <input type="file" required accept=".pdf,.doc,.docx" className="w-full text-sm border border-[--civic-gray-200] rounded px-3 py-2.5" />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-[--civic-navy] mb-1.5">Cover Letter</label>
+                  <textarea
+                    value={form.coverLetter}
+                    onChange={(e) => setForm(f => ({ ...f, coverLetter: e.target.value }))}
+                    rows={4}
+                    placeholder="Tell us why you want to work at Samadhan..."
+                    className="w-full px-3 py-2.5 text-sm border border-[--civic-gray-200] rounded focus:outline-none focus:ring-2 focus:ring-[--india-saffron]/40 focus:border-[--india-saffron] resize-none"
                   />
                 </div>
-                
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">
-                    Email Address *
-                  </label>
+                  <label className="block text-xs font-semibold text-[--civic-navy] mb-1.5">Portfolio / GitHub <span className="font-normal text-[--civic-gray-400]">(Optional)</span></label>
                   <input
-                    type="email"
-                    required
-                    value={applicationForm.email}
-                    onChange={(e) => handleInputChange('email', e.target.value)}
-                    className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                    type="url"
+                    value={form.portfolio}
+                    onChange={(e) => setForm(f => ({ ...f, portfolio: e.target.value }))}
+                    placeholder="https://github.com/username"
+                    className="w-full px-3 py-2.5 text-sm border border-[--civic-gray-200] rounded focus:outline-none focus:ring-2 focus:ring-[--india-saffron]/40 focus:border-[--india-saffron]"
                   />
                 </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">
-                    Phone Number
-                  </label>
-                  <input
-                    type="tel"
-                    value={applicationForm.phone}
-                    onChange={(e) => handleInputChange('phone', e.target.value)}
-                    className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-                  />
+                <div className="flex justify-end pt-2">
+                  <button type="submit" className="btn-saffron flex items-center gap-2 text-sm">
+                    <Send size={15} /> Submit Application
+                  </button>
                 </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">
-                    Position Applied For *
-                  </label>
-                  <select
-                    required
-                    value={applicationForm.position}
-                    onChange={(e) => handleInputChange('position', e.target.value)}
-                    className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-                  >
-                    <option value="">Select a position</option>
-                    {jobOpenings.map((job) => (
-                      <option key={job.id} value={job.title}>{job.title}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Years of Experience *
-                </label>
-                <select
-                  required
-                  value={applicationForm.experience}
-                  onChange={(e) => handleInputChange('experience', e.target.value)}
-                  className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-                >
-                  <option value="">Select experience level</option>
-                  <option value="0-1">0-1 years</option>
-                  <option value="1-2">1-2 years</option>
-                  <option value="2-3">2-3 years</option>
-                  <option value="3-5">3-5 years</option>
-                  <option value="5+">5+ years</option>
-                </select>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Resume/CV *
-                </label>
-                <input
-                  type="file"
-                  required
-                  accept=".pdf,.doc,.docx"
-                  onChange={(e) => handleInputChange('resume', e.target.files?.[0] || null)}
-                  className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Cover Letter
-                </label>
-                <textarea
-                  value={applicationForm.coverLetter}
-                  onChange={(e) => handleInputChange('coverLetter', e.target.value)}
-                  rows={4}
-                  placeholder="Tell us why you want to work at Samadhan..."
-                  className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Portfolio/GitHub (Optional)
-                </label>
-                <input
-                  type="url"
-                  value={applicationForm.portfolio}
-                  onChange={(e) => handleInputChange('portfolio', e.target.value)}
-                  placeholder="https://github.com/yourusername or portfolio URL"
-                  className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-                />
-              </div>
-              
-              <div className="flex justify-end">
-                <button
-                  type="submit"
-                  className="brand-btn px-8 py-3 rounded-lg transition inline-flex items-center gap-2"
-                >
-                  <Send size={16} />
-                  Submit Application
-                </button>
-              </div>
-            </form>
+              </form>
+            )}
           </div>
         </div>
       </section>
 
-      {/* ===== Culture Section ===== */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-slate-900 mb-4">
-              Our Culture
-            </h2>
-            <p className="text-lg text-slate-600">
-              We're building more than just a company – we're creating a community of passionate people
-            </p>
+      {/* ── CTA ── */}
+      <section className="bg-[--india-saffron]">
+        <div className="max-w-7xl mx-auto px-6 md:px-10 py-12 flex flex-col md:flex-row items-center justify-between gap-6">
+          <div>
+            <p className="font-display text-xl md:text-2xl font-extrabold text-white mb-1">Don't see the right role?</p>
+            <p className="text-white/80 text-sm">We're always looking for people who share our mission. Drop us your resume!</p>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="w-20 h-20 bg-gradient-to-br from-teal-400 to-teal-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Users className="text-white" size={32} />
-              </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-4">Collaborative Environment</h3>
-              <p className="text-slate-600">
-                We believe in open communication, shared knowledge, and working together to achieve common goals.
-              </p>
-            </div>
-            
-            <div className="text-center">
-              <div className="w-20 h-20 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                <TrendingUp className="text-white" size={32} />
-              </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-4">Growth Opportunities</h3>
-              <p className="text-slate-600">
-                Continuous learning, skill development, and career advancement opportunities for every team member.
-              </p>
-            </div>
-            
-            <div className="text-center">
-              <div className="w-20 h-20 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Target className="text-white" size={32} />
-              </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-4">Meaningful Impact</h3>
-              <p className="text-slate-600">
-                Every project you work on directly improves the lives of citizens and strengthens communities.
-              </p>
-            </div>
+          <div className="flex gap-3 flex-shrink-0">
+            <button className="inline-flex items-center gap-2 bg-white text-[--india-saffron] font-bold text-sm py-3 px-7 rounded hover:bg-orange-50 transition-colors">
+              Send Your Resume <ExternalLink size={14} />
+            </button>
           </div>
         </div>
       </section>
 
-      {/* ===== Call to Action ===== */}
-      <section className="py-16 bg-teal-500">
-        <div className="max-w-4xl mx-auto px-8 text-center">
-          <h2 className="text-3xl font-bold text-white mb-6">
-            Don't See the Right Role?
-          </h2>
-          <p className="text-xl text-teal-100 mb-8">
-            We're always looking for talented people who share our mission. Send us your resume and let's talk!
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="bg-white text-teal-500 font-bold text-lg py-3 px-8 rounded-lg hover:bg-slate-100 transition inline-flex items-center justify-center gap-2">
-              Send Your Resume
-              <ExternalLink size={20} />
-            </button>
-            <button className="bg-transparent border-2 border-white text-white font-bold text-lg py-3 px-8 rounded-lg hover:bg-white hover:text-teal-500 transition">
-              Contact HR Team
-            </button>
-          </div>
-        </div>
-      </section>
+      <BackToTop />
     </div>
   );
 }
