@@ -1,14 +1,22 @@
 const express = require('express');
-const { protect } = require('../../middleware/auth');
-const { createReport, getAllReports } = require('../controllers/report.controller');
+const { protect, adminProtect } = require('../../middleware/auth');
+const multer = require('multer');
+const upload = multer({ storage: multer.memoryStorage() });
+const { createReport, getAllReports, updateReportStatus, getMyReports } = require('../controllers/report.controller');
 
 const router = express.Router();
 
-// GET /api/reports
-router.get('/', getAllReports);
+// GET /api/reports/my  — citizen: own reports + stats (must be before /:id)
+router.get('/my', protect, getMyReports);
 
-// POST /api/reports (temporarily without auth for testing)
-router.post('/', createReport);
+// GET /api/reports  — admin only
+router.get('/', protect, adminProtect, getAllReports);
+
+// POST /api/reports
+router.post('/', protect, upload.array('photos', 5), createReport);
+
+// PUT /api/reports/:id/status
+router.put('/:id/status', protect, adminProtect, updateReportStatus);
 
 module.exports = router;
 

@@ -1,34 +1,229 @@
-/* client/src/index.css */
+/* client/src/index.css — Samadhan India Gov Design System v3 */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Brand palette from ColorHunt: #BBDCE5, #ECEEDF, #D9C4B0, #CFAB8D */
+/* ─── Google Fonts ─── */
+/* Plus Jakarta Sans — Hero/Display */
+/* Inter — Body */
+/* Space Grotesk — Stats/Accents */
+
+/* ─── India Gov Design Tokens ─── */
 :root {
-  --brand-primary: #CFAB8D; /* primary accent */
-  --brand-primary-600: #b8926f; /* hover */
-  --brand-accent: #BBDCE5; /* secondary accent */
-  --brand-bg: #ECEEDF; /* page background */
-  --brand-neutral: #D9C4B0; /* neutral highlights */
+  /* Indian Tricolor */
+  --india-saffron:     #FF9933;
+  --india-saffron-700: #E07800;
+  --india-green:       #138808;
+  --india-green-700:   #0D6005;
+  --india-blue:        #000080;   /* Ashoka Chakra / Navy blue */
+  --india-blue-700:    #000060;
+  --india-white:       #FFFFFF;
+
+  /* Extended palette */
+  --civic-navy:        #1A2A6C;   /* Richer gov navy */
+  --civic-navy-800:    #141F52;
+  --civic-navy-700:    #0F1840;
+  --civic-teal:        #00A896;
+  --civic-teal-600:    #008F80;
+  --civic-teal-light:  #E6F7F5;
+  --civic-amber:       #FF9933;   /* = saffron */
+  --civic-red:         #B91C1C;
+  --civic-green:       #138808;
+
+  /* Neutrals */
+  --civic-gray-50:  #F8FAFC;
+  --civic-gray-100: #EFF3F7;
+  --civic-gray-200: #E2E8F0;
+  --civic-gray-400: #94A3B8;
+  --civic-gray-600: #475569;
+  --civic-text:     #1A2B4A;
+
+  /* Legacy aliases */
+  --brand-primary:     var(--civic-teal);
+  --brand-primary-600: var(--civic-teal-600);
+  --brand-accent:      var(--civic-teal-light);
+  --brand-bg:          var(--civic-gray-50);
 }
 
-/* Simple utility classes to use brand colors */
-.brand-btn {
-  background-color: var(--brand-primary);
-  color: #ffffff;
+/* ─── Base ─── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
 }
-.brand-btn:hover {
-  background-color: var(--brand-primary-600);
-}
-.brand-outline {
-  color: var(--brand-primary);
-  border-color: var(--brand-primary);
-}
-.brand-accent { color: var(--brand-primary); }
-.bg-brand-accent { background-color: var(--brand-accent); }
-.bg-brand-page { background-color: var(--brand-bg); }
-.border-brand { border-color: var(--brand-primary); }
 
 body {
-  @apply bg-white font-sans text-slate-800;
+  font-family: 'Inter', system-ui, sans-serif;
+  background-color: #FAFBFF;
+  color: var(--civic-text);
+  line-height: 1.6;
 }
+
+/* ─── Typography ─── */
+.font-display { font-family: 'Plus Jakarta Sans', sans-serif; }
+.font-accent  { font-family: 'Space Grotesk', sans-serif; }
+
+/* ─── Tricolor top bar (india.gov.in style) ─── */
+.tricolor-bar {
+  height: 4px;
+  background: linear-gradient(to right,
+    #FF9933 0% 33.3%,
+    #FFFFFF 33.3% 66.6%,
+    #138808 66.6% 100%
+  );
+}
+
+/* Scroll-progress bar — tricolor gradient revealed left→right as page scrolls */
+.scroll-progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 4px;
+  background: linear-gradient(
+    to right,
+    #FF9933 0%,
+    #FF9933 33.3%,
+    #FFFFFF 33.3%,
+    #FFFFFF 66.6%,
+    #138808 66.6%,
+    #138808 100%
+  );
+  background-size: 100vw 4px;
+  background-repeat: no-repeat;
+  z-index: 9999;
+  transition: width 0.15s ease-out;
+  pointer-events: none;
+}
+
+/* ─── India Gov Buttons ─── */
+.btn-saffron {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+  padding: 0.65rem 1.6rem;
+  background: var(--india-saffron);
+  color: #fff;
+  font-weight: 700; font-size: 0.875rem;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+.btn-saffron:hover { background: var(--india-saffron-700); }
+
+.btn-navy {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+  padding: 0.65rem 1.6rem;
+  background: var(--civic-navy);
+  color: #fff;
+  font-weight: 700; font-size: 0.875rem;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+.btn-navy:hover { background: var(--civic-navy-800); }
+
+.btn-outline-white {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+  padding: 0.65rem 1.6rem;
+  border: 2px solid #fff;
+  color: #fff;
+  font-weight: 700; font-size: 0.875rem;
+  border-radius: 4px;
+  transition: background 0.2s, color 0.2s;
+}
+.btn-outline-white:hover { background: #fff; color: var(--civic-navy); }
+
+/* Legacy brand-btn aliases */
+.brand-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+  padding: 0.6rem 1.5rem; border-radius: 4px; font-weight: 700; font-size: 0.875rem;
+  background: var(--india-saffron); color: #fff; transition: background 0.2s;
+}
+.brand-btn:hover { background: var(--india-saffron-700); }
+.brand-btn-outline {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+  padding: 0.6rem 1.5rem; border-radius: 4px; font-weight: 700; font-size: 0.875rem;
+  border: 2px solid var(--civic-navy); color: var(--civic-navy); background: transparent; transition: background 0.2s, color 0.2s;
+}
+.brand-btn-outline:hover { background: var(--civic-navy); color: #fff; }
+
+/* ─── Cards ─── */
+.civic-card {
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid var(--civic-gray-200);
+  box-shadow: 0 2px 8px rgba(26,42,108,0.06);
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.civic-card:hover {
+  box-shadow: 0 8px 24px rgba(26,42,108,0.13);
+  transform: translateY(-2px);
+}
+
+/* Service card (india.gov.in style) */
+.service-card {
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid var(--civic-gray-200);
+  border-top: 3px solid var(--india-saffron);
+  box-shadow: 0 2px 8px rgba(26,42,108,0.06);
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.service-card:hover {
+  box-shadow: 0 8px 24px rgba(26,42,108,0.13);
+  transform: translateY(-3px);
+}
+.service-card.green  { border-top-color: var(--india-green); }
+.service-card.navy   { border-top-color: var(--civic-navy); }
+
+/* ─── Badge colors ─── */
+.badge-submitted  { background:#EFF3F7; color:#1A2B4A; }
+.badge-inprogress { background:#FEF3C7; color:#92400E; }
+.badge-resolved   { background:#D1FAE5; color:#065F46; }
+
+/* ─── Section helpers ─── */
+.section-heading { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; color: var(--civic-navy); }
+.section-sub { color: var(--civic-gray-600); font-size: 1.05rem; }
+.section-label {
+  display: inline-block;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.7rem; font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 3px 10px;
+  background: var(--india-saffron);
+  color: #fff; border-radius: 2px;
+}
+.section-label.green { background: var(--india-green); }
+.section-label.navy  { background: var(--civic-navy); }
+
+/* ─── Hero overlay ─── */
+.hero-overlay {
+  background: linear-gradient(
+    105deg,
+    rgba(26,42,108,0.92) 0%,
+    rgba(26,42,108,0.75) 55%,
+    rgba(19,136,8,0.25) 100%
+  );
+}
+
+/* ─── Scrollbar ─── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-thumb { background: var(--civic-gray-200); border-radius: 99px; }
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ─── Animations ─── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-up { animation: fadeUp 0.6s ease both; }
+
+/* ─── Leaflet Overrides ─── */
+.leaflet-container {
+  z-index: 0 !important;
+}
+
+/* ─── Legacy ─── */
+.brand-outline  { color: var(--civic-teal); border-color: var(--civic-teal); }
+.brand-accent   { color: var(--india-saffron); }
+.bg-brand-accent { background-color: rgba(255,153,51,0.1); }
+.bg-brand-page  { background-color: var(--civic-gray-50); }
+.border-brand   { border-color: var(--india-saffron); }

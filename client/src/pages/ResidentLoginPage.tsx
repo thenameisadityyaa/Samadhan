@@ -1,143 +1,153 @@
-// src/pages/ResidentLoginPage.tsx
+// src/pages/ResidentLoginPage.tsx — Samadhan Civic Design System v2
 import { useState } from 'react';
-import { Mail, Lock, LogIn } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import { Mail, Lock, Eye, EyeOff, ArrowRight, ShieldCheck } from 'lucide-react';
+import toast, { Toaster } from 'react-hot-toast';
 
 export function ResidentLoginPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState<{ 
-    email?: string; 
-    password?: string; 
-    general?: string 
-  }>({});
+  const [showPw, setShowPw] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<{ email?: string; password?: string; general?: string }>({});
 
   const validate = () => {
-    const nextErrors: { email?: string; password?: string } = {};
-    if (!email.trim()) {
-        nextErrors.email = 'Email is required';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        nextErrors.email = 'Enter a valid email address';
-    }
-    if (!password.trim()) {
-        nextErrors.password = 'Password is required';
-    }
-    setErrors(nextErrors);
-    return Object.keys(nextErrors).length === 0;
+    const n: typeof errors = {};
+    if (!email.trim()) n.email = 'Email is required';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) n.email = 'Enter a valid email';
+    if (!password.trim()) n.password = 'Password is required';
+    setErrors(n);
+    return Object.keys(n).length === 0;
   };
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
-
-    setIsLoading(true);
-    setErrors({}); // Clear previous errors
-
+    setLoading(true);
     try {
-      // Send the data to your backend API's login endpoint
-      const response = await fetch('http://localhost:5000/api/auth/login', {
+      const response = await fetch('/api/auth/login', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
-
       const data = await response.json();
-
       if (!response.ok) {
-        // If the backend returns an error (e.g., wrong password), show it
-        throw new Error(data.message || 'Something went wrong');
+        setErrors({ general: data.message || 'Login failed. Please try again.' });
+        setLoading(false);
+        return;
       }
-
-      // On success, save the token and redirect the user
-      console.log('Login successful:', data);
-      localStorage.setItem('token', data.token); // Save the JWT
-      navigate('/dashboard'); // Redirect to the user's dashboard
-
-    } catch (error: any) {
-      // Catch any network errors or errors from the backend
-      setErrors({ general: error.message });
+      localStorage.setItem('token', data.data.token);
+      localStorage.setItem('userData', JSON.stringify({
+        name: data.data.user?.name || email.split('@')[0],
+        email,
+        location: data.data.user?.location || '',
+        lastLogin: new Date().toISOString()
+      }));
+      toast.success('Welcome back!');
+      setTimeout(() => navigate('/dashboard'), 600);
+    } catch {
+      setErrors({ general: 'Network error. Please try again.' });
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-      <section className="w-full max-w-md mx-auto p-4">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-extrabold text-slate-900">Resident Login</h1>
-          <p className="text-slate-600 mt-2">Access your Samadhan account</p>
-        </div>
+    <div className="min-h-screen flex">
+      <Toaster position="top-right" />
 
-        <form onSubmit={onSubmit} className="bg-white border border-slate-200 rounded-lg shadow-sm p-6 space-y-5">
+      {/* Left panel — branding */}
+      <div className="hidden lg:flex w-1/2 bg-[--civic-navy] relative overflow-hidden flex-col justify-center items-center p-16">
+        <div className="absolute inset-0 bg-gradient-to-br from-[--civic-navy] to-[--civic-teal]/30 pointer-events-none" />
+        <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-[--civic-teal] opacity-10 blur-3xl" />
+        <div className="relative z-10 text-center">
+          <div className="w-20 h-20 rounded-2xl bg-[--civic-teal]/20 border border-[--civic-teal]/30 flex items-center justify-center mx-auto mb-8">
+            <ShieldCheck size={40} className="text-[--civic-teal]" />
+          </div>
+          <h1 className="font-display text-4xl font-extrabold text-white mb-4">Welcome Back</h1>
+          <p className="text-slate-300 text-base leading-relaxed max-w-sm">
+            Sign in to track your reports, get status updates, and keep making your city better.
+          </p>
+          <div className="mt-12 grid grid-cols-3 gap-4 text-center">
+            {[['12,400+', 'Issues Resolved'], ['78%', 'In 72 Hours'], ['4.8★', 'User Rating']].map(([val, lbl]) => (
+              <div key={lbl} className="rounded-xl bg-white/10 p-4">
+                <p className="font-accent text-xl font-bold text-[--civic-teal]">{val}</p>
+                <p className="text-xs text-slate-400 mt-1">{lbl}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Right panel — form */}
+      <div className="flex-1 flex items-center justify-center bg-[--civic-gray-50] p-6 md:p-12">
+        <div className="w-full max-w-md">
+          <div className="mb-10">
+            <Link to="/" className="text-[--civic-teal] text-sm font-medium hover:underline">← Back to Home</Link>
+            <h2 className="font-display text-3xl font-extrabold text-[--civic-navy] mt-6 mb-2">Sign In</h2>
+            <p className="text-[--civic-gray-600] text-sm">New here? <Link to="/resident/signup" className="text-[--civic-teal] font-semibold hover:underline">Create a free account</Link></p>
+          </div>
+
           {errors.general && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-center text-sm">
+            <div className="mb-5 p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm flex items-start gap-2">
+              <span className="mt-0.5">⚠️</span>
               {errors.general}
             </div>
           )}
 
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">Email</label>
-            <div className={`flex items-center gap-2 border rounded-lg px-3 ${errors.email ? 'border-red-300' : 'border-slate-300'}`}>
-              <Mail className="text-slate-400" size={18} />
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
-                className="w-full py-3 outline-none bg-transparent"
-                disabled={isLoading}
-              />
+          <form onSubmit={onSubmit} className="space-y-5">
+            <div>
+              <label className="block text-sm font-semibold text-[--civic-navy] mb-2">Email Address</label>
+              <div className={`flex items-center gap-3 bg-white border-2 rounded-xl px-4 py-3 transition-colors ${errors.email ? 'border-red-400' : 'border-[--civic-gray-200] focus-within:border-[--civic-teal]'}`}>
+                <Mail size={18} className="text-[--civic-gray-400] flex-shrink-0" />
+                <input
+                  type="email"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  placeholder="you@example.com"
+                  className="flex-1 outline-none bg-transparent text-sm text-[--civic-text]"
+                />
+              </div>
+              {errors.email && <p className="text-red-500 text-xs mt-1.5">{errors.email}</p>}
             </div>
-            {errors.email && <p className="text-sm text-red-600 mt-1">{errors.email}</p>}
-          </div>
 
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">Password</label>
-            <div className={`flex items-center gap-2 border rounded-lg px-3 ${errors.password ? 'border-red-300' : 'border-slate-300'}`}>
-              <Lock className="text-slate-400" size={18} />
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full py-3 outline-none bg-transparent"
-                disabled={isLoading}
-              />
+            <div>
+              <label className="block text-sm font-semibold text-[--civic-navy] mb-2">Password</label>
+              <div className={`flex items-center gap-3 bg-white border-2 rounded-xl px-4 py-3 transition-colors ${errors.password ? 'border-red-400' : 'border-[--civic-gray-200] focus-within:border-[--civic-teal]'}`}>
+                <Lock size={18} className="text-[--civic-gray-400] flex-shrink-0" />
+                <input
+                  type={showPw ? 'text' : 'password'}
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="flex-1 outline-none bg-transparent text-sm text-[--civic-text]"
+                />
+                <button type="button" onClick={() => setShowPw(!showPw)} className="text-[--civic-gray-400] hover:text-[--civic-navy] transition">
+                  {showPw ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+              {errors.password && <p className="text-red-500 text-xs mt-1.5">{errors.password}</p>}
             </div>
-            {errors.password && <p className="text-sm text-red-600 mt-1">{errors.password}</p>}
-          </div>
 
-          <button 
-            type="submit" 
-            disabled={isLoading} 
-            className="w-full bg-blue-600 text-white font-semibold py-3 rounded-lg inline-flex items-center justify-center gap-2 transition-colors hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isLoading ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                Signing In...
-              </>
-            ) : (
-              <>
-                <LogIn size={18} />
-                Sign In
-              </>
-            )}
-          </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="brand-btn w-full py-3.5 text-base disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {loading ? (
+                <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />Signing in...</>
+              ) : (
+                <>Sign In <ArrowRight size={18} /></>
+              )}
+            </button>
+          </form>
 
-          <p className="text-sm text-slate-600 text-center">
-            Don't have an account?{' '}
-            <Link to="/resident/signup" className="text-blue-600 hover:underline font-medium">
-              Create one
-            </Link>
+          <p className="mt-8 text-center text-xs text-[--civic-gray-400]">
+            Are you an admin? <Link to="/admin/login" className="text-[--civic-gray-600] font-semibold hover:underline">Admin Login →</Link>
           </p>
-        </form>
-      </section>
+        </div>
+      </div>
     </div>
   );
 }

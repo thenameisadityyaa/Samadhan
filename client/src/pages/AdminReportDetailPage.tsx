@@ -1,6 +1,6 @@
 // src/pages/AdminReportDetailPage.tsx
 import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, Link } from 'react-router-dom';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import { 
   ArrowLeft, 
@@ -24,7 +24,6 @@ import {
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
-// Fix for default markers in react-leaflet
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
@@ -32,7 +31,6 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
-// Mock data - replace with actual API calls
 const mockReport = {
   id: 'RPT-001',
   issueType: 'Pothole',
@@ -50,187 +48,31 @@ const mockReport = {
     address: '123 Gandhi Nagar, New Delhi'
   },
   images: [
-    {
-      id: 1,
-      url: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop',
-      caption: 'Main pothole view from street level',
-      uploadedAt: new Date('2024-01-15T10:35:00')
-    },
-    {
-      id: 2,
-      url: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=800&h=600&fit=crop',
-      caption: 'Close-up view showing depth',
-      uploadedAt: new Date('2024-01-15T10:36:00')
-    },
-    {
-      id: 3,
-      url: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=600&fit=crop',
-      caption: 'Traffic impact view',
-      uploadedAt: new Date('2024-01-15T10:37:00')
-    }
+    { id: 1, url: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop', caption: 'Main pothole view', uploadedAt: new Date('2024-01-15T10:35:00') }
   ],
   internalNotes: [
-    {
-      id: 1,
-      note: 'High priority - located on main arterial road',
-      author: 'Admin User',
-      createdAt: new Date('2024-01-15T11:00:00')
-    },
-    {
-      id: 2,
-      note: 'Similar issue reported nearby in RPT-045',
-      author: 'Admin User',
-      createdAt: new Date('2024-01-15T11:15:00')
-    }
+    { id: 1, note: 'High priority - located on main arterial road', author: 'Admin User', createdAt: new Date('2024-01-15T11:00:00') }
   ],
   statusHistory: [
-    {
-      status: 'new',
-      timestamp: new Date('2024-01-15T10:30:00'),
-      note: 'Report submitted by citizen'
-    }
+    { status: 'new', timestamp: new Date('2024-01-15T10:30:00'), note: 'Report submitted by citizen' }
   ]
 };
 
 const getStatusColor = (status: string) => {
   const colors: { [key: string]: string } = {
-    new: 'bg-blue-100 text-blue-800 border-blue-200',
-    in_progress: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-    resolved: 'bg-green-100 text-green-800 border-green-200',
-    rejected: 'bg-red-100 text-red-800 border-red-200'
+    new: 'text-blue-700 bg-blue-50 border-blue-200',
+    in_progress: 'text-[--india-saffron] bg-orange-50 border-orange-200',
+    resolved: 'text-[--india-green] bg-green-50 border-green-200',
   };
-  return colors[status] || 'bg-gray-100 text-gray-800 border-gray-200';
+  return colors[status] || 'bg-[--civic-gray-100] text-slate-800 border-[--civic-gray-200]';
 };
 
 const getStatusLabel = (status: string) => {
-  const labels: { [key: string]: string } = {
-    new: 'New',
-    in_progress: 'In Progress',
-    resolved: 'Resolved',
-    rejected: 'Rejected'
-  };
+  const labels: { [key: string]: string } = { new: 'Incoming', in_progress: 'In Progress', resolved: 'Resolved' };
   return labels[status] || status;
 };
 
-const getPriorityColor = (priority: string) => {
-  const colors: { [key: string]: string } = {
-    high: 'text-red-600 bg-red-50',
-    medium: 'text-yellow-600 bg-yellow-50',
-    low: 'text-green-600 bg-green-50'
-  };
-  return colors[priority] || 'text-gray-600 bg-gray-50';
-};
-
-const getPriorityLabel = (priority: string) => {
-  const labels: { [key: string]: string } = {
-    high: 'High Priority',
-    medium: 'Medium Priority',
-    low: 'Low Priority'
-  };
-  return labels[priority] || priority;
-};
-
-const formatDate = (date: Date) => {
-  return date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
-};
-
-const formatTimeAgo = (date: Date) => {
-  const now = new Date();
-  const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
-  
-  if (diffInMinutes < 1) return 'Just now';
-  if (diffInMinutes < 60) return `${diffInMinutes} minute${diffInMinutes > 1 ? 's' : ''} ago`;
-  
-  const diffInHours = Math.floor(diffInMinutes / 60);
-  if (diffInHours < 24) return `${diffInHours} hour${diffInHours > 1 ? 's' : ''} ago`;
-  
-  const diffInDays = Math.floor(diffInHours / 24);
-  return `${diffInDays} day${diffInDays > 1 ? 's' : ''} ago`;
-};
-
-const ImageViewer = ({ images }: { images: any[] }) => {
-  const [selectedImage, setSelectedImage] = useState(0);
-  const [isFullscreen, setIsFullscreen] = useState(false);
-
-  if (isFullscreen) {
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center">
-        <div className="relative max-w-4xl max-h-full p-4">
-          <button
-            onClick={() => setIsFullscreen(false)}
-            className="absolute top-4 right-4 text-white hover:text-gray-300 z-10"
-          >
-            <XCircle className="h-8 w-8" />
-          </button>
-          <img
-            src={images[selectedImage].url}
-            alt={images[selectedImage].caption}
-            className="max-w-full max-h-full object-contain"
-          />
-          <div className="absolute bottom-4 left-4 right-4 text-white text-center">
-            <p className="text-lg font-medium">{images[selectedImage].caption}</p>
-            <p className="text-sm opacity-75">
-              {selectedImage + 1} of {images.length}
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-4">
-      <div className="relative">
-        <img
-          src={images[selectedImage].url}
-          alt={images[selectedImage].caption}
-          className="w-full h-64 object-cover rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
-          onClick={() => setIsFullscreen(true)}
-        />
-        <button
-          onClick={() => setIsFullscreen(true)}
-          className="absolute top-2 right-2 bg-black bg-opacity-50 text-white p-2 rounded-lg hover:bg-opacity-70"
-        >
-          <Eye className="h-4 w-4" />
-        </button>
-        <div className="absolute bottom-2 left-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-sm">
-          {selectedImage + 1} of {images.length}
-        </div>
-      </div>
-      
-      {images.length > 1 && (
-        <div className="flex space-x-2 overflow-x-auto">
-          {images.map((image, index) => (
-            <button
-              key={image.id}
-              onClick={() => setSelectedImage(index)}
-              className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 ${
-                selectedImage === index ? 'border-blue-500' : 'border-gray-200'
-              }`}
-            >
-              <img
-                src={image.url}
-                alt={image.caption}
-                className="w-full h-full object-cover"
-              />
-            </button>
-          ))}
-        </div>
-      )}
-      
-      <div className="text-sm text-slate-600">
-        <p className="font-medium">{images[selectedImage].caption}</p>
-        <p>Uploaded {formatTimeAgo(images[selectedImage].uploadedAt)}</p>
-      </div>
-    </div>
-  );
-};
+const formatDate = (date: Date) => date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
 export function AdminReportDetailPage() {
   const navigate = useNavigate();
@@ -239,359 +81,116 @@ export function AdminReportDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [newNote, setNewNote] = useState('');
-  const [statusChange, setStatusChange] = useState({
-    status: report?.status || 'new',
-    note: ''
-  });
+  const [statusChange, setStatusChange] = useState({ status: report?.status || 'new', note: '' });
+  const [adminProfile, setAdminProfile] = useState<any>(null);
 
   useEffect(() => {
-    // Check admin authentication
     const adminSession = localStorage.getItem('adminSession');
-    if (!adminSession) {
-      navigate('/admin/login');
-      return;
-    }
+    if (!adminSession) { navigate('/admin/login'); return; }
+    setAdminProfile(JSON.parse(adminSession));
+    setTimeout(() => setIsLoading(false), 500);
+  }, [navigate]);
 
-    // Simulate loading report data
-    const timer = setTimeout(() => setIsLoading(false), 500);
-    return () => clearTimeout(timer);
-  }, [navigate, reportId]);
-
-  const handleStatusChange = (newStatus: string) => {
-    setStatusChange(prev => ({ ...prev, status: newStatus }));
-  };
-
-  const handleSaveStatus = () => {
-    // In a real app, this would make an API call
-    const updatedReport = {
-      ...report,
-      status: statusChange.status,
-      statusHistory: [
-        ...report.statusHistory,
-        {
-          status: statusChange.status,
-          timestamp: new Date(),
-          note: statusChange.note || `Status changed to ${getStatusLabel(statusChange.status)}`
-        }
-      ]
-    };
-    setReport(updatedReport);
-    setIsEditing(false);
-    setStatusChange({ status: statusChange.status, note: '' });
-  };
-
-  const handleAddNote = () => {
-    if (!newNote.trim()) return;
-    
-    const note = {
-      id: Date.now(),
-      note: newNote.trim(),
-      author: 'Current Admin',
-      createdAt: new Date()
-    };
-    
-    setReport(prev => ({
-      ...prev,
-      internalNotes: [...prev.internalNotes, note]
-    }));
-    setNewNote('');
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem('adminSession');
-    navigate('/admin/login');
-  };
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-slate-600">Loading report details...</p>
-        </div>
-      </div>
-    );
-  }
+  if (isLoading) return <div className="min-h-screen bg-[--civic-gray-50] flex flex-col items-center justify-center"><div className="w-12 h-12 border-4 border-[--india-saffron]/30 border-t-[--india-saffron] rounded-full animate-spin mb-4" /><p className="text-[--civic-navy] font-semibold tracking-wide">INITIALIZING WORKSPACE...</p></div>;
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      {/* Header */}
-      <div className="bg-white border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="py-6 flex justify-between items-center">
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={() => navigate('/admin/reports')}
-                className="flex items-center space-x-2 text-slate-600 hover:text-slate-900"
-              >
-                <ArrowLeft className="h-4 w-4" />
-                <span>Back to Reports</span>
-              </button>
-              <div>
-                <h1 className="text-3xl font-bold text-slate-900">Report Details</h1>
-                <p className="mt-2 text-slate-600">Report ID: {report.id}</p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              <nav className="flex space-x-4">
-                <button
-                  onClick={() => navigate('/admin/dashboard')}
-                  className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
-                >
-                  Dashboard
-                </button>
-                <button
-                  onClick={() => navigate('/admin/reports')}
-                  className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
-                >
-                  Reports
-                </button>
-                <button
-                  onClick={() => navigate('/admin/analytics')}
-                  className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
-                >
-                  Analytics
-                </button>
-              </nav>
-              <button
-                onClick={handleLogout}
-                className="flex items-center space-x-2 px-4 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
-              >
-                <LogOut className="h-4 w-4" />
-                <span>Logout</span>
-              </button>
+    <div className="min-h-screen bg-[--civic-gray-50] font-sans flex flex-col">
+      {/* ── Top Bar ── */}
+      <header className="bg-white border-b border-[--civic-gray-200] sticky top-0 z-50">
+        <div className="h-1 w-full bg-[--civic-navy]" />
+        <div className="max-w-[1400px] mx-auto px-6 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-8 h-8 bg-[--civic-navy] text-white flex items-center justify-center font-bold font-display rounded-sm">AD</div>
+            <div>
+              <h1 className="text-sm font-bold text-[--civic-navy] leading-none mb-1 uppercase tracking-widest">Samadhan Command Center</h1>
+              <p className="text-[10px] text-[--civic-gray-600] font-medium tracking-wide">Central Civic Administration Panel</p>
             </div>
           </div>
+          <div className="flex items-center gap-4">
+            <div className="hidden md:block text-right border-r border-[--civic-gray-200] pr-4">
+              <p className="text-xs font-bold text-[--civic-navy]">{adminProfile?.name || 'Administrator'}</p>
+            </div>
+            <button onClick={() => navigate('/admin/login')} className="flex items-center gap-1.5 text-xs font-bold text-[#B91C1C] hover:bg-red-50 px-3 py-1.5 rounded transition-colors border border-transparent hover:border-red-100">
+              <LogOut size={14} /> SYSTEM DISCONNECT
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* ── Secondary Nav ── */}
+      <div className="bg-white border-b border-[--civic-gray-200] mb-6 shadow-sm">
+        <div className="max-w-[1400px] mx-auto px-6 py-2 flex items-center gap-6">
+          <button onClick={() => navigate('/admin/reports')} className="flex items-center gap-2 text-[10px] font-bold text-[--civic-navy] hover:bg-[--civic-gray-50] px-3 py-1 rounded-sm border border-[--civic-gray-300] uppercase tracking-widest transition-colors"><ArrowLeft size={12} /> BACK TO REGISTRY</button>
+          <span className="text-sm font-bold text-[--india-saffron] border-b-2 border-[--india-saffron] py-2 ml-4">Incident Log: #{report.id}</span>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Content */}
+      <div className="max-w-[1400px] mx-auto px-6 pb-12 flex-1 flex flex-col w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
-            {/* Report Information Block */}
-            <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
-              <div className="flex items-start justify-between mb-4">
+            <div className="bg-white rounded-sm shadow-sm border border-[--civic-gray-200] p-6">
+              <div className="flex justify-between items-start mb-6 border-b border-[--civic-gray-200] pb-4">
                 <div>
-                  <h2 className="text-xl font-semibold text-slate-900 mb-2">
-                    {report.issueType} Report
-                  </h2>
-                  <div className="flex items-center space-x-4">
-                    <span className={`px-3 py-1 text-sm font-medium rounded-full border ${getStatusColor(report.status)}`}>
-                      {getStatusLabel(report.status)}
-                    </span>
-                    <span className={`px-3 py-1 text-sm font-medium rounded-full ${getPriorityColor(report.priority)}`}>
-                      {getPriorityLabel(report.priority)}
-                    </span>
+                  <h2 className="text-xl font-bold text-[--civic-navy] mb-3">{report.issueType} Report</h2>
+                  <div className="flex items-center space-x-3">
+                    <span className={`px-3 py-1 text-[10px] font-bold rounded-sm border uppercase tracking-wider ${getStatusColor(report.status)}`}>{getStatusLabel(report.status)}</span>
+                    <span className={`px-3 py-1 text-[10px] font-bold rounded-sm uppercase tracking-wider bg-[#B91C1C] text-white border border-[#B91C1C]`}>CRITICAL PRIORITY</span>
                   </div>
                 </div>
-                <div className="flex space-x-2">
-                  <button className="p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg">
-                    <Share className="h-4 w-4" />
-                  </button>
-                  <button className="p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg">
-                    <Download className="h-4 w-4" />
-                  </button>
+                <div className="flex gap-2">
+                  <button className="h-8 w-8 flex items-center justify-center border border-[--civic-gray-200] rounded-sm hover:bg-[--civic-gray-50] text-[--civic-gray-600]"><Share size={14} /></button>
+                  <button className="h-8 w-8 flex items-center justify-center border border-[--civic-gray-200] rounded-sm hover:bg-[--civic-gray-50] text-[--civic-gray-600]"><Download size={14} /></button>
                 </div>
               </div>
-
-              <div className="space-y-4">
+              
+              <div className="space-y-6">
                 <div>
-                  <h3 className="text-sm font-medium text-slate-700 mb-1">Description</h3>
-                  <p className="text-slate-900">{report.description}</p>
+                  <h3 className="text-[10px] font-bold text-[--civic-gray-400] uppercase tracking-widest mb-2">Detailed Narrative</h3>
+                  <p className="text-sm text-slate-800 leading-relaxed p-4 bg-[--civic-gray-50] rounded-sm border border-[--civic-gray-200]">{report.description}</p>
                 </div>
-
+                
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <h3 className="text-sm font-medium text-slate-700 mb-1">Location</h3>
-                    <p className="text-slate-900 flex items-center space-x-2">
-                      <MapPin className="h-4 w-4 text-slate-400" />
-                      <span>{report.location}</span>
-                    </p>
+                    <h3 className="text-[10px] font-bold text-[--civic-gray-400] uppercase tracking-widest mb-2">Location Register</h3>
+                    <p className="text-sm font-semibold text-[--civic-navy] flex items-center gap-2"><MapPin size={16} className="text-[--civic-gray-400]"/> {report.location}</p>
                   </div>
                   <div>
-                    <h3 className="text-sm font-medium text-slate-700 mb-1">Date Submitted</h3>
-                    <p className="text-slate-900 flex items-center space-x-2">
-                      <Calendar className="h-4 w-4 text-slate-400" />
-                      <span>{formatDate(report.dateSubmitted)}</span>
-                    </p>
+                    <h3 className="text-[10px] font-bold text-[--civic-gray-400] uppercase tracking-widest mb-2">Submission Timestamp</h3>
+                    <p className="text-sm font-semibold text-[--civic-navy] flex items-center gap-2"><Calendar size={16} className="text-[--civic-gray-400]"/> {formatDate(report.dateSubmitted)}</p>
                   </div>
                 </div>
-
-                <div>
-                  <h3 className="text-sm font-medium text-slate-700 mb-1">Assigned To</h3>
-                  <p className="text-slate-900">{report.assignedTo}</p>
-                </div>
               </div>
             </div>
 
-            {/* Image Viewer */}
-            <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
-              <h2 className="text-lg font-semibold text-slate-900 mb-4">Report Images</h2>
-              <ImageViewer images={report.images} />
-            </div>
-
-            {/* Exact Location Map */}
-            <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
-              <h2 className="text-lg font-semibold text-slate-900 mb-4">Exact Location</h2>
-              <div className="h-64 rounded-lg overflow-hidden">
-                <MapContainer
-                  center={[report.coordinates.lat, report.coordinates.lng]}
-                  zoom={16}
-                  style={{ height: '100%', width: '100%' }}
-                >
-                  <TileLayer
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                  />
-                  <Marker position={[report.coordinates.lat, report.coordinates.lng]}>
-                    <Popup>
-                      <div className="p-2">
-                        <h3 className="font-semibold text-sm mb-1">{report.issueType}</h3>
-                        <p className="text-xs text-slate-600">{report.location}</p>
-                      </div>
-                    </Popup>
-                  </Marker>
-                </MapContainer>
-              </div>
+            <div className="bg-white rounded-sm shadow-sm border border-[--civic-gray-200] p-6">
+               <h3 className="text-[10px] font-bold text-[--civic-gray-400] uppercase tracking-widest mb-4 border-b border-[--civic-gray-200] pb-2">Geospatial Plot</h3>
+               <div className="h-64 rounded-sm overflow-hidden border border-[--civic-gray-300]">
+                 <MapContainer center={[report.coordinates.lat, report.coordinates.lng]} zoom={16} style={{ height: '100%', width: '100%' }}>
+                   <TileLayer url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png" />
+                   <Marker position={[report.coordinates.lat, report.coordinates.lng]}>
+                     <Popup><h3 className="font-bold text-[10px] uppercase tracking-wider text-[--civic-navy]">{report.issueType}</h3></Popup>
+                   </Marker>
+                 </MapContainer>
+               </div>
             </div>
           </div>
 
-          {/* Admin Action Panel */}
           <div className="space-y-6">
-            {/* Status Management */}
-            <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
-              <h2 className="text-lg font-semibold text-slate-900 mb-4">Status Management</h2>
-              
-              {!isEditing ? (
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Current Status</label>
-                    <div className={`px-3 py-2 rounded-lg border ${getStatusColor(report.status)}`}>
-                      {getStatusLabel(report.status)}
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => setIsEditing(true)}
-                    className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                  >
-                    <Edit className="h-4 w-4" />
-                    <span>Change Status</span>
-                  </button>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">New Status</label>
-                    <select
-                      value={statusChange.status}
-                      onChange={(e) => handleStatusChange(e.target.value)}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="new">New</option>
-                      <option value="in_progress">In Progress</option>
-                      <option value="resolved">Resolved</option>
-                      <option value="rejected">Rejected</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Status Note</label>
-                    <textarea
-                      value={statusChange.note}
-                      onChange={(e) => setStatusChange(prev => ({ ...prev, note: e.target.value }))}
-                      placeholder="Add a note about this status change..."
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      rows={3}
-                    />
-                  </div>
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={handleSaveStatus}
-                      className="flex-1 flex items-center justify-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-                    >
-                      <Save className="h-4 w-4" />
-                      <span>Save</span>
-                    </button>
-                    <button
-                      onClick={() => setIsEditing(false)}
-                      className="flex-1 px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              )}
+            <div className="bg-white rounded-sm shadow-sm border border-[--civic-gray-200] p-6">
+              <h3 className="text-[10px] font-bold text-[--civic-gray-400] uppercase tracking-widest mb-4 border-b border-[--civic-gray-200] pb-2">Record Authorization</h3>
+              <button className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-[--civic-navy] text-white font-bold rounded-sm hover:bg-[--civic-navy-600] uppercase tracking-widest text-xs transition-colors shadow-sm focus:ring-2 focus:ring-[--civic-navy] focus:ring-offset-2">
+                <Edit className="h-4 w-4" /> <span>Update Status</span>
+              </button>
             </div>
-
-            {/* Department Assignment */}
-            <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
-              <h2 className="text-lg font-semibold text-slate-900 mb-4">Department Assignment</h2>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">Assigned To</label>
-                <select className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  <option value="Public Works Dept">Public Works Dept</option>
-                  <option value="Sanitation Dept">Sanitation Dept</option>
-                  <option value="Electrical Dept">Electrical Dept</option>
-                  <option value="Water Dept">Water Dept</option>
-                  <option value="Highway Dept">Highway Dept</option>
-                </select>
-              </div>
-            </div>
-
-            {/* Citizen Information */}
-            <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
-              <h2 className="text-lg font-semibold text-slate-900 mb-4">Citizen Information</h2>
+            
+            <div className="bg-white rounded-sm shadow-sm border border-[--civic-gray-200] p-6">
+              <h3 className="text-[10px] font-bold text-[--civic-gray-400] uppercase tracking-widest mb-4 border-b border-[--civic-gray-200] pb-2">Citizen Informant</h3>
               <div className="space-y-3">
-                <div className="flex items-center space-x-3">
-                  <User className="h-4 w-4 text-slate-400" />
-                  <span className="text-slate-900">{report.citizenInfo.name}</span>
+                <div className="p-3 bg-[--civic-gray-50] border border-[--civic-gray-200] rounded-sm text-sm break-all font-mono">
+                  <p className="font-bold text-[--civic-navy] mb-1">{report.citizenInfo.name}</p>
+                  <p className="text-slate-600 mb-1">{report.citizenInfo.phone}</p>
+                  <p className="text-slate-600">{report.citizenInfo.email}</p>
                 </div>
-                <div className="flex items-center space-x-3">
-                  <Mail className="h-4 w-4 text-slate-400" />
-                  <span className="text-slate-900">{report.citizenInfo.email}</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <Phone className="h-4 w-4 text-slate-400" />
-                  <span className="text-slate-900">{report.citizenInfo.phone}</span>
-                </div>
-                <div className="flex items-start space-x-3">
-                  <MapPin className="h-4 w-4 text-slate-400 mt-0.5" />
-                  <span className="text-slate-900">{report.citizenInfo.address}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Internal Notes */}
-            <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
-              <h2 className="text-lg font-semibold text-slate-900 mb-4">Internal Notes</h2>
-              
-              <div className="space-y-3 mb-4">
-                {report.internalNotes.map((note) => (
-                  <div key={note.id} className="p-3 bg-slate-50 rounded-lg">
-                    <p className="text-slate-900 text-sm">{note.note}</p>
-                    <div className="flex items-center justify-between mt-2">
-                      <span className="text-xs text-slate-500">By {note.author}</span>
-                      <span className="text-xs text-slate-500">{formatTimeAgo(note.createdAt)}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="space-y-3">
-                <textarea
-                  value={newNote}
-                  onChange={(e) => setNewNote(e.target.value)}
-                  placeholder="Add an internal note..."
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  rows={3}
-                />
-                <button
-                  onClick={handleAddNote}
-                  className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  <MessageSquare className="h-4 w-4" />
-                  <span>Add Note</span>
-                </button>
               </div>
             </div>
           </div>

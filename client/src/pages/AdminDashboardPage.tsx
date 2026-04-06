@@ -1,9 +1,10 @@
-// src/pages/AdminDashboardPage.tsx
+// src/pages/AdminDashboardPage.tsx — India Gov Design System v3
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import { BarChart3, Clock, CheckCircle, AlertTriangle, MapPin, Activity, LogOut } from 'lucide-react';
+import { BarChart3, Clock, CheckCircle, AlertTriangle, MapPin, LogOut, ArrowRight, Activity, Filter, RefreshCw } from 'lucide-react';
 import L from 'leaflet';
+import axios from 'axios';
 import 'leaflet/dist/leaflet.css';
 
 // Fix for default markers in react-leaflet
@@ -14,408 +15,339 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
-// Mock data - replace with actual API calls
-const mockReports = [
-  {
-    id: 1,
-    title: 'Pothole on Main Market Road',
-    type: 'pothole',
-    status: 'new',
-    location: { lat: 28.6139, lng: 77.2090 },
-    createdAt: new Date(Date.now() - 5 * 60 * 1000), // 5 minutes ago
-    description: 'Large pothole causing traffic issues'
-  },
-  {
-    id: 2,
-    title: 'Garbage accumulation in Sector 5',
-    type: 'garbage',
-    status: 'in_progress',
-    location: { lat: 28.6149, lng: 77.2190 },
-    createdAt: new Date(Date.now() - 15 * 60 * 1000), // 15 minutes ago
-    description: 'Garbage not being collected regularly'
-  },
-  {
-    id: 3,
-    title: 'Streetlight not working near Park',
-    type: 'streetlight',
-    status: 'new',
-    location: { lat: 28.6129, lng: 77.1990 },
-    createdAt: new Date(Date.now() - 30 * 60 * 1000), // 30 minutes ago
-    description: 'Streetlight has been out for 2 days'
-  },
-  {
-    id: 4,
-    title: 'Water leakage in Block A',
-    type: 'water',
-    status: 'in_progress',
-    location: { lat: 28.6159, lng: 77.2290 },
-    createdAt: new Date(Date.now() - 45 * 60 * 1000), // 45 minutes ago
-    description: 'Water pipe burst causing flooding'
-  },
-  {
-    id: 5,
-    title: 'Broken sidewalk on MG Road',
-    type: 'infrastructure',
-    status: 'new',
-    location: { lat: 28.6119, lng: 77.1890 },
-    createdAt: new Date(Date.now() - 60 * 60 * 1000), // 1 hour ago
-    description: 'Sidewalk tiles are broken and dangerous'
-  }
-];
-
-const getIssueTypeColor = (type: string) => {
-  const colors: { [key: string]: string } = {
-    pothole: '#f59e0b', // yellow
-    garbage: '#8b5cf6', // purple
-    streetlight: '#f97316', // orange
-    water: '#06b6d4', // cyan
-    infrastructure: '#ef4444', // red
-    default: '#6b7280' // gray
-  };
-  return colors[type] || colors.default;
+// Civic map marker style
+const createCustomMarker = (color: string, iconStr: string) => {
+  return L.divIcon({
+    className: 'custom-marker',
+    html: `
+      <div style="
+        background-color: ${color};
+        width: 22px; height: 22px;
+        border-radius: 50%;
+        border: 2px solid white;
+        box-shadow: 0 2px 4px rgba(26,42,108,0.3);
+        display: flex; align-items: center; justify-content: center;
+        color: white; font-size: 10px; font-weight: bold;
+      ">${iconStr}</div>`,
+    iconSize: [22, 22],
+    iconAnchor: [11, 11]
+  });
 };
 
-const getIssueTypeIcon = (type: string) => {
-  const icons: { [key: string]: string } = {
-    pothole: '🕳️',
-    garbage: '🗑️',
-    streetlight: '💡',
-    water: '💧',
-    infrastructure: '🏗️',
-    default: '📍'
-  };
-  return icons[type] || icons.default;
+const getUrgencyMeta = (urgency: string) => {
+  if (urgency === 'high') return { label: 'CRITICAL', color: 'text-white bg-[#B91C1C]', border: 'border-[#B91C1C] border-l-4', hex: '#B91C1C' };
+  if (urgency === 'medium') return { label: 'ELEVATED', color: 'text-white bg-[--india-saffron]', border: 'border-[--india-saffron] border-l-4', hex: '#FF9933' };
+  return { label: 'ROUTINE', color: 'text-white bg-[--india-green]', border: 'border-[--india-green] border-l-4', hex: '#138808' };
 };
 
 const formatTimeAgo = (date: Date) => {
-  const now = new Date();
-  const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
-  
-  if (diffInMinutes < 1) return 'Just now';
-  if (diffInMinutes < 60) return `${diffInMinutes} minute${diffInMinutes > 1 ? 's' : ''} ago`;
-  
-  const diffInHours = Math.floor(diffInMinutes / 60);
-  if (diffInHours < 24) return `${diffInHours} hour${diffInHours > 1 ? 's' : ''} ago`;
-  
-  const diffInDays = Math.floor(diffInHours / 24);
-  return `${diffInDays} day${diffInDays > 1 ? 's' : ''} ago`;
+  const diffInMinutes = Math.floor((new Date().getTime() - date.getTime()) / (1000 * 60));
+  if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+  const hrs = Math.floor(diffInMinutes / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  return `${Math.floor(hrs / 24)}d ago`;
 };
 
-const KPICard = ({ title, value, icon: Icon, color, trend }: {
-  title: string;
-  value: number;
-  icon: any;
-  color: string;
-  trend?: string;
-}) => (
-  <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
-    <div className="flex items-center justify-between">
-      <div>
-        <p className="text-sm font-medium text-slate-600">{title}</p>
-        <p className="text-3xl font-bold text-slate-900 mt-2">{value}</p>
-        {trend && (
-          <p className="text-sm text-green-600 mt-1">{trend}</p>
-        )}
-      </div>
-      <div className={`p-3 rounded-full ${color}`}>
-        <Icon className="h-6 w-6 text-white" />
-      </div>
-    </div>
-  </div>
-);
-
-const ActivityItem = ({ report }: { report: any }) => (
-  <div className="flex items-start space-x-3 py-3 border-b border-slate-100 last:border-b-0">
-    <div className="flex-shrink-0">
-      <div className="w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center">
-        <span className="text-sm">{getIssueTypeIcon(report.type)}</span>
-      </div>
-    </div>
-    <div className="flex-1 min-w-0">
-      <p className="text-sm font-medium text-slate-900 capitalize">
-        {report.type.replace('_', ' ')} reported
-      </p>
-      <p className="text-sm text-slate-600 truncate">{report.title}</p>
-      <p className="text-xs text-slate-500">{formatTimeAgo(report.createdAt)}</p>
-    </div>
-  </div>
-);
-
-const MapMarker = ({ report }: { report: any }) => {
-  const customIcon = L.divIcon({
-    className: 'custom-marker',
-    html: `<div style="
-      background-color: ${getIssueTypeColor(report.type)};
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      border: 2px solid white;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 10px;
-    ">${getIssueTypeIcon(report.type)}</div>`,
-    iconSize: [20, 20],
-    iconAnchor: [10, 10]
-  });
-
-  return (
-    <Marker position={[report.location.lat, report.location.lng]} icon={customIcon}>
-      <Popup>
-        <div className="p-2">
-          <h3 className="font-semibold text-sm mb-1">{report.title}</h3>
-          <p className="text-xs text-slate-600 mb-2">{report.description}</p>
-          <div className="flex items-center justify-between">
-            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-              report.status === 'new' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'
-            }`}>
-              {report.status === 'new' ? 'New' : 'In Progress'}
-            </span>
-            <button 
-              onClick={() => navigate(`/admin/reports/${report.id}`)}
-              className="text-xs text-blue-600 hover:text-blue-800 font-medium"
-            >
-              View Details
-            </button>
-          </div>
-        </div>
-      </Popup>
-    </Marker>
-  );
+// Check if a report SLA is breached (> 72 hours and not resolved)
+const isSlaBreached = (createdAt: Date, status: string) => {
+  if (status === 'resolved') return false;
+  const diffHours = (new Date().getTime() - createdAt.getTime()) / (1000 * 60 * 60);
+  return diffHours > 72;
 };
 
 export function AdminDashboardPage() {
   const navigate = useNavigate();
-  const [reports] = useState(mockReports);
+  const [reports, setReports] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [adminProfile, setAdminProfile] = useState<any>(null);
+
+  const fetchReports = async (showSpinner = false) => {
+    if (showSpinner) setIsRefreshing(true);
+    try {
+      const adminToken = localStorage.getItem('adminToken');
+      // Simulated API response format handling due to missing mock data setup in some cases
+      const { data } = await axios.get('/api/reports', {
+        headers: { Authorization: `Bearer ${adminToken}` }
+      });
+      const formatted = data.data.map((r: any) => ({
+        id: r._id,
+        title: r.title,
+        type: r.category || 'General',
+        urgency: r.urgency || 'low',
+        status: r.status === 'Submitted' ? 'new' : r.status === 'In Progress' ? 'in_progress' : 'resolved',
+        location: { lat: r.coordinates?.lat || 28.6139, lng: r.coordinates?.lng || 77.2090 },
+        address: r.location || 'Location Not Provided',
+        createdAt: new Date(r.createdAt),
+        description: r.description
+      }));
+      setReports(formatted.sort((a: any, b: any) => b.createdAt.getTime() - a.createdAt.getTime()));
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsLoading(false);
+      setIsRefreshing(false);
+    }
+  };
 
   useEffect(() => {
-    // Check admin authentication
     const adminSession = localStorage.getItem('adminSession');
-    if (!adminSession) {
+    const adminToken = localStorage.getItem('adminToken');
+    if (!adminSession || !adminToken) {
       navigate('/admin/login');
       return;
     }
-
-    // Parse session data
-    try {
-      const sessionData = JSON.parse(adminSession);
-      if (!sessionData.id || !sessionData.email) {
-        localStorage.removeItem('adminSession');
-        navigate('/admin/login');
-        return;
-      }
-    } catch (error) {
-      localStorage.removeItem('adminSession');
-      navigate('/admin/login');
-      return;
-    }
-
-    // Simulate loading
-    const timer = setTimeout(() => setIsLoading(false), 1000);
-    return () => clearTimeout(timer);
+    try { setAdminProfile(JSON.parse(adminSession)); } catch {}
+    fetchReports();
   }, [navigate]);
 
   const handleLogout = () => {
     localStorage.removeItem('adminSession');
+    localStorage.removeItem('adminToken');
     navigate('/admin/login');
   };
 
-  // Calculate KPIs
+  // KPIs
+  const totalReports = reports.length;
   const newReports = reports.filter(r => r.status === 'new').length;
   const inProgressReports = reports.filter(r => r.status === 'in_progress').length;
-  const resolvedThisMonth = 56; // Mock data
-  const totalPending = newReports + inProgressReports;
+  const resolvedReports = reports.filter(r => r.status === 'resolved').length;
+  const slaBreachedCount = reports.filter(r => isSlaBreached(r.createdAt, r.status)).length;
 
-  // Get recent activity (last 5 reports)
-  const recentActivity = reports
-    .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
-    .slice(0, 5);
-
-  // Get pending reports for map
-  const pendingReports = reports.filter(r => r.status === 'new' || r.status === 'in_progress');
+  const pendingReports = reports.filter(r => r.status !== 'resolved');
+  const urgentQueue = pendingReports.filter(r => r.urgency === 'high').slice(0, 5);
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-slate-600">Loading dashboard...</p>
-        </div>
+      <div className="min-h-screen bg-[--civic-gray-50] flex flex-col items-center justify-center">
+        <div className="w-12 h-12 border-4 border-[--india-saffron]/30 border-t-[--india-saffron] rounded-full animate-spin mb-4" />
+        <p className="text-[--civic-navy] font-semibold tracking-wide">INITIALIZING WORKSPACE...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      {/* Header */}
-      <div className="bg-white border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="py-6 flex justify-between items-center">
+    <div className="min-h-screen bg-[--civic-gray-50] font-sans">
+      
+      {/* ── Top Bar (Admin Standard) ── */}
+      <header className="bg-white border-b border-[--civic-gray-200] sticky top-0 z-50">
+        <div className="h-1 w-full bg-[--civic-navy]" />
+        <div className="max-w-[1400px] mx-auto px-6 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-8 h-8 bg-[--civic-navy] text-white flex items-center justify-center font-bold font-display rounded-sm">AD</div>
             <div>
-              <h1 className="text-3xl font-bold text-slate-900">Admin Dashboard</h1>
-              <p className="mt-2 text-slate-600">Monitor and manage civic issues in real-time</p>
+              <h1 className="text-sm font-bold text-[--civic-navy] leading-none mb-1 uppercase tracking-widest">Samadhan Command Center</h1>
+              <p className="text-[10px] text-[--civic-gray-600] font-medium tracking-wide">Central Civic Administration Panel</p>
             </div>
-            <div className="flex items-center space-x-4">
-              <nav className="flex space-x-4">
-                <button
-                  onClick={() => navigate('/admin/dashboard')}
-                  className="px-3 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg"
-                >
-                  Dashboard
-                </button>
-                <button
-                  onClick={() => navigate('/admin/reports')}
-                  className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
-                >
-                  Reports
-                </button>
-                <button
-                  onClick={() => navigate('/admin/analytics')}
-                  className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
-                >
-                  Analytics
-                </button>
-              </nav>
-              <button
-                onClick={handleLogout}
-                className="flex items-center space-x-2 px-4 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
-              >
-                <LogOut className="h-4 w-4" />
-                <span>Logout</span>
-              </button>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="hidden md:block text-right border-r border-[--civic-gray-200] pr-4">
+              <p className="text-xs font-bold text-[--civic-navy]">{adminProfile?.name || 'Administrator'}</p>
+              <p className="text-[10px] text-[--civic-gray-400] uppercase tracking-wider">{adminProfile?.email}</p>
             </div>
+            <button onClick={handleLogout} className="flex items-center gap-1.5 text-xs font-bold text-[#B91C1C] hover:bg-red-50 px-3 py-1.5 rounded transition-colors border border-transparent hover:border-red-100">
+              <LogOut size={14} /> SYSTEM DISCONNECT
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* ── Secondary Nav & Action Bar ── */}
+      <div className="bg-white border-b border-[--civic-gray-200] mb-6">
+        <div className="max-w-[1400px] mx-auto px-6 py-2 flex flex-col sm:flex-row justify-between items-center gap-3">
+          <div className="flex items-center gap-6">
+            <span className="text-sm font-bold text-[--india-saffron] border-b-2 border-[--india-saffron] py-2">Operations Dashboard</span>
+            <Link to="/admin/reports" className="text-sm font-semibold text-[--civic-gray-600] hover:text-[--civic-navy] py-2 transition-colors">Master Report Registry</Link>
+            <Link to="/admin/analytics" className="text-sm font-semibold text-[--civic-gray-600] hover:text-[--civic-navy] py-2 transition-colors">Strategic Analytics</Link>
+          </div>
+          <div className="flex items-center gap-2">
+            <button onClick={() => fetchReports(true)} disabled={isRefreshing} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold bg-[--civic-gray-100] text-[--civic-navy] rounded border border-[--civic-gray-200] hover:bg-[--civic-gray-200] transition-colors uppercase tracking-widest disabled:opacity-50">
+              <RefreshCw size={12} className={isRefreshing ? "animate-spin" : ""} /> Sync Data
+            </button>
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* KPI Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <KPICard
-            title="New Reports"
-            value={newReports}
-            icon={AlertTriangle}
-            color="bg-red-500"
-            trend="+2 from yesterday"
-          />
-          <KPICard
-            title="In Progress"
-            value={inProgressReports}
-            icon={Clock}
-            color="bg-yellow-500"
-          />
-          <KPICard
-            title="Resolved This Month"
-            value={resolvedThisMonth}
-            icon={CheckCircle}
-            color="bg-green-500"
-            trend="+12% from last month"
-          />
-          <KPICard
-            title="Total Pending"
-            value={totalPending}
-            icon={BarChart3}
-            color="bg-blue-500"
-          />
+      <div className="max-w-[1400px] mx-auto px-6 pb-12">
+        
+        {/* ── Key Performance Indicators ── */}
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+          <div className="bg-white border border-[--civic-gray-200] rounded-sm p-4 shadow-sm border-l-4 border-l-[--civic-navy]">
+            <p className="text-[10px] uppercase font-bold tracking-widest text-[--civic-gray-500] mb-1">Total Docket</p>
+            <p className="text-2xl font-black text-[--civic-navy] font-accent">{totalReports}</p>
+          </div>
+          <div className="bg-white border border-[--civic-gray-200] rounded-sm p-4 shadow-sm border-l-4 border-l-[#3B82F6]">
+            <p className="text-[10px] uppercase font-bold tracking-widest text-[--civic-gray-500] mb-1">Incoming</p>
+            <div className="flex items-end gap-2">
+              <p className="text-2xl font-black text-slate-800 font-accent">{newReports}</p>
+              <div className="h-2 w-2 rounded-full bg-[#3B82F6] mb-2 animate-pulse" />
+            </div>
+          </div>
+          <div className="bg-white border border-[--civic-gray-200] rounded-sm p-4 shadow-sm border-l-4 border-l-[--india-saffron]">
+            <p className="text-[10px] uppercase font-bold tracking-widest text-[--civic-gray-500] mb-1">In Processing</p>
+            <p className="text-2xl font-black text-slate-800 font-accent">{inProgressReports}</p>
+          </div>
+          <div className="bg-white border border-[--civic-gray-200] rounded-sm p-4 shadow-sm border-l-4 border-l-[--india-green]">
+            <p className="text-[10px] uppercase font-bold tracking-widest text-[--civic-gray-500] mb-1">Resolved (YTD)</p>
+            <p className="text-2xl font-black text-slate-800 font-accent">{resolvedReports}</p>
+          </div>
+          <div className="bg-white border border-red-200 rounded-sm p-4 shadow-sm border-l-4 border-l-red-600 bg-red-50/30">
+            <p className="text-[10px] uppercase font-bold tracking-widest text-red-700 mb-1 flex items-center gap-1">
+              <AlertTriangle size={10} /> SLA Breached (&gt;72h)
+            </p>
+            <p className="text-2xl font-black text-red-700 font-accent">{slaBreachedCount}</p>
+          </div>
         </div>
 
-        {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Live Map */}
-          <div className="lg:col-span-2">
-            <div className="bg-white rounded-lg shadow-sm border border-slate-200">
-              <div className="px-6 py-4 border-b border-slate-200">
-                <div className="flex items-center space-x-2">
-                  <MapPin className="h-5 w-5 text-slate-600" />
-                  <h2 className="text-lg font-semibold text-slate-900">Live Map Overview</h2>
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          
+          {/* ── Left Column: Operations Map & Feed ── */}
+          <div className="lg:col-span-3 space-y-6">
+            
+            {/* Live Operations Map */}
+            <div className="bg-white border border-[--civic-gray-200] rounded-sm overflow-hidden shadow-sm">
+              <div className="px-5 py-3 border-b border-[--civic-gray-200] bg-[--civic-gray-50] flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <MapPin size={16} className="text-[--civic-navy]" />
+                  <h2 className="text-sm font-bold uppercase tracking-widest text-[--civic-navy]">Live Operations Grid</h2>
                 </div>
-                <p className="text-sm text-slate-600 mt-1">
-                  {pendingReports.length} pending reports across the city
-                </p>
+                <div className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-wider text-[--civic-gray-500]">
+                  <span className="flex items-center gap-1"><div className="w-2 h-2 rounded bg-[#B91C1C]" /> Critical</span>
+                  <span className="flex items-center gap-1"><div className="w-2 h-2 rounded bg-[--india-saffron]" /> Elevated</span>
+                  <span className="flex items-center gap-1"><div className="w-2 h-2 rounded bg-[--india-green]" /> Routine</span>
+                </div>
               </div>
-              <div className="h-96">
-                <MapContainer
-                  center={[28.6139, 77.2090]} // Delhi coordinates
-                  zoom={12}
-                  style={{ height: '100%', width: '100%' }}
-                  className="rounded-b-lg"
-                >
+              <div className="h-[400px] w-full bg-[--civic-gray-100]">
+                <MapContainer center={[28.6139, 77.2090]} zoom={12} style={{ height: '100%', width: '100%', zIndex: 0 }}>
                   <TileLayer
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    url="https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png"
+                    attribution='&copy; OpenStreetMap &copy; CartoDB'
                   />
                   {pendingReports.map((report) => (
-                    <MapMarker key={report.id} report={report} />
+                    <Marker key={report.id} position={[report.location.lat, report.location.lng]} icon={createCustomMarker(getUrgencyMeta(report.urgency).hex, '!')}>
+                      <Popup className="civic-popup">
+                        <div className="p-1 min-w-[200px]">
+                          <div className={`text-[10px] font-bold text-white px-2 py-0.5 rounded-sm inline-block mb-1.5 bg-[${getUrgencyMeta(report.urgency).hex}]`}>
+                            {getUrgencyMeta(report.urgency).label}
+                          </div>
+                          <h3 className="font-bold text-xs text-[--civic-navy] mb-1 leading-tight">{report.title}</h3>
+                          <p className="text-[10px] text-[--civic-gray-500] mb-2 border-b border-[--civic-gray-100] pb-2 line-clamp-2">{report.address}</p>
+                          <button onClick={() => navigate(`/admin/reports/${report.id}`)} className="text-[10px] font-bold text-[--india-saffron] hover:text-[--india-saffron-700] flex items-center gap-1 uppercase tracking-wider">
+                            Inspect Docket <ArrowRight size={10} />
+                          </button>
+                        </div>
+                      </Popup>
+                    </Marker>
                   ))}
                 </MapContainer>
               </div>
             </div>
+
+            {/* Structured Recent Activity Log */}
+            <div className="bg-white border border-[--civic-gray-200] rounded-sm shadow-sm overflow-hidden auto-rows-min">
+              <div className="px-5 py-3 border-b border-[--civic-gray-200] bg-[--civic-gray-50] flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Activity size={16} className="text-[--civic-navy]" />
+                  <h2 className="text-sm font-bold uppercase tracking-widest text-[--civic-navy]">System Activity Log</h2>
+                </div>
+                <Link to="/admin/reports" className="text-[10px] font-bold uppercase tracking-wider text-[--india-saffron] hover:underline flex items-center gap-1">
+                  View Full Registry <ArrowRight size={10} />
+                </Link>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm whitespace-nowrap">
+                  <thead className="bg-white uppercase text-[10px] font-bold text-[--civic-gray-500] border-b border-[--civic-gray-200]">
+                    <tr>
+                      <th className="px-5 py-3 tracking-wider">Docket ID / Title</th>
+                      <th className="px-5 py-3 tracking-wider">Category</th>
+                      <th className="px-5 py-3 tracking-wider">Status</th>
+                      <th className="px-5 py-3 tracking-wider">Time LOG</th>
+                      <th className="px-5 py-3 text-right tracking-wider">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[--civic-gray-100]">
+                    {reports.slice(0, 8).map((r) => (
+                      <tr key={r.id} className="hover:bg-[--civic-gray-50] transition-colors group">
+                        <td className="px-5 py-3">
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] font-mono text-[--civic-gray-400]">#{r.id.slice(-6).toUpperCase()}</span>
+                            <span className="font-semibold text-slate-800 text-xs truncate max-w-[200px]">{r.title}</span>
+                          </div>
+                        </td>
+                        <td className="px-5 py-3">
+                          <span className="bg-slate-100 text-slate-600 text-[10px] font-bold px-2 py-0.5 rounded-sm uppercase tracking-wider">{r.type}</span>
+                        </td>
+                        <td className="px-5 py-3">
+                          {r.status === 'new' && <span className="text-[10px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-sm border border-blue-200 uppercase">Incoming</span>}
+                          {r.status === 'in_progress' && <span className="text-[10px] font-bold text-[--india-saffron] bg-orange-50 px-2 py-0.5 rounded-sm border border-orange-200 uppercase">In Progress</span>}
+                          {r.status === 'resolved' && <span className="text-[10px] font-bold text-[--india-green] bg-green-50 px-2 py-0.5 rounded-sm border border-green-200 uppercase">Resolved</span>}
+                        </td>
+                        <td className="px-5 py-3 text-[10px] text-slate-500 font-mono">
+                          {formatTimeAgo(r.createdAt)}
+                        </td>
+                        <td className="px-5 py-3 text-right">
+                          <button onClick={() => navigate(`/admin/reports/${r.id}`)} className="text-[10px] font-bold uppercase tracking-wider text-[--civic-gray-400] group-hover:text-[--india-saffron] transition-colors border border-transparent group-hover:border-[--india-saffron]/30 px-2 py-1 rounded">
+                            Review
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                    {reports.length === 0 && (
+                      <tr><td colSpan={5} className="px-5 py-10 text-center text-xs text-slate-500">No records found in registry.</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
 
-          {/* Recent Activity Feed */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow-sm border border-slate-200">
-              <div className="px-6 py-4 border-b border-slate-200">
-                <div className="flex items-center space-x-2">
-                  <Activity className="h-5 w-5 text-slate-600" />
-                  <h2 className="text-lg font-semibold text-slate-900">Recent Activity</h2>
-                </div>
-                <p className="text-sm text-slate-600 mt-1">
-                  Latest reports from citizens
-                </p>
+          {/* ── Right Column: Urgent Queue ── */}
+          <div className="lg:col-span-1 space-y-6">
+            
+            {/* Urgent Queue Panel */}
+            <div className="bg-white border border-[#B91C1C]/30 rounded-sm shadow-sm flex flex-col h-full auto-rows-min pb-4">
+              <div className="px-5 py-4 border-b border-[#B91C1C]/20 bg-red-50/50">
+                <h2 className="text-sm font-bold uppercase tracking-widest text-[#B91C1C] flex items-center gap-2">
+                  <AlertTriangle size={16} /> Urgent Intervention
+                </h2>
+                <p className="text-[10px] text-[#B91C1C]/70 font-semibold mt-1 uppercase tracking-wider">Prioritize These Dockets</p>
               </div>
-              <div className="px-6 py-4">
-                {recentActivity.length > 0 ? (
-                  <div className="space-y-0">
-                    {recentActivity.map((report) => (
-                      <ActivityItem key={report.id} report={report} />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <Activity className="h-12 w-12 text-slate-300 mx-auto mb-4" />
-                    <p className="text-slate-500">No recent activity</p>
+              <div className="divide-y divide-[--civic-gray-100] flex-1">
+                {urgentQueue.map((r) => {
+                  const slaBreach = isSlaBreached(r.createdAt, r.status);
+                  return (
+                    <div key={r.id} className="p-4 hover:bg-[--civic-gray-50] transition-colors">
+                      <div className="flex items-start justify-between mb-1.5">
+                        <span className="text-[10px] font-mono text-[#B91C1C] bg-red-50 px-1 border border-red-100 rounded-sm">#{r.id.slice(-5).toUpperCase()}</span>
+                        <span className="text-[10px] font-semibold text-slate-500">{formatTimeAgo(r.createdAt)}</span>
+                      </div>
+                      <h4 className="text-[13px] font-bold text-slate-900 leading-snug mb-1 line-clamp-2">{r.title}</h4>
+                      <p className="text-[10px] text-slate-500 mb-3 truncate flex items-center gap-1"><MapPin size={10} /> {r.address}</p>
+                      <div className="flex items-center justify-between">
+                        {slaBreach ? (
+                          <span className="text-[9px] font-bold text-white bg-[#B91C1C] px-1.5 py-0.5 rounded-sm uppercase tracking-wider animate-pulse">SLA Breached</span>
+                        ) : (
+                          <span className="text-[9px] font-bold text-[#B91C1C] bg-red-50 px-1.5 py-0.5 rounded-sm uppercase tracking-wider border border-red-200">SLA Active</span>
+                        )}
+                        <button onClick={() => navigate(`/admin/reports/${r.id}`)} className="text-[10px] font-bold text-[--civic-navy] hover:underline">ACTION &rarr;</button>
+                      </div>
+                    </div>
+                  );
+                })}
+                {urgentQueue.length === 0 && (
+                  <div className="px-5 py-8 text-center text-slate-500 text-xs flex flex-col items-center">
+                    <CheckCircle size={20} className="mb-2 text-[--india-green]" />
+                    No critical issues pending.
                   </div>
                 )}
               </div>
             </div>
+            
           </div>
         </div>
 
-        {/* Quick Actions */}
-        <div className="mt-8">
-          <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
-            <h3 className="text-lg font-semibold text-slate-900 mb-4">Quick Actions</h3>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <button 
-                onClick={() => navigate('/admin/reports')}
-                className="flex items-center justify-center space-x-2 px-4 py-3 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg transition-colors"
-              >
-                <BarChart3 className="h-5 w-5" />
-                <span>Manage Reports</span>
-              </button>
-              <button 
-                onClick={() => navigate('/admin/analytics')}
-                className="flex items-center justify-center space-x-2 px-4 py-3 bg-purple-50 hover:bg-purple-100 text-purple-700 rounded-lg transition-colors"
-              >
-                <Activity className="h-5 w-5" />
-                <span>View Analytics</span>
-              </button>
-              <button className="flex items-center justify-center space-x-2 px-4 py-3 bg-green-50 hover:bg-green-100 text-green-700 rounded-lg transition-colors">
-                <CheckCircle className="h-5 w-5" />
-                <span>Bulk Actions</span>
-              </button>
-              <button className="flex items-center justify-center space-x-2 px-4 py-3 bg-orange-50 hover:bg-orange-100 text-orange-700 rounded-lg transition-colors">
-                <Activity className="h-5 w-5" />
-                <span>Generate Report</span>
-              </button>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );
 }
+
